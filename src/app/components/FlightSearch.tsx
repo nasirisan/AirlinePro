@@ -41,6 +41,8 @@ export const FlightSearch: React.FC = () => {
   const popularRoutes = [
     { from: 'New York', to: 'Los Angeles', code: 'JFK → LAX', price: 299 },
     { from: 'San Francisco', to: 'Miami', code: 'SFO → MIA', price: 349 },
+    { from: 'Accra', to: 'Lagos', code: 'ACC → LOS', price: 189 },
+    { from: 'Accra', to: 'London', code: 'ACC → LHR', price: 549 },
     { from: 'Chicago', to: 'Seattle', code: 'ORD → SEA', price: 279 },
     { from: 'Boston', to: 'Denver', code: 'BOS → DEN', price: 259 }
   ];
@@ -283,6 +285,16 @@ export const FlightSearch: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.1 }}
+                  onClick={() => {
+                    setFrom(route.from);
+                    setTo(route.to);
+                    setTimeout(() => {
+                      const results = searchFlights(route.from, route.to, date);
+                      setSearchResults(results);
+                      setHasSearched(true);
+                      window.scrollTo({ top: 300, behavior: 'smooth' });
+                    }, 100);
+                  }}
                   className={`p-4 rounded-xl border cursor-pointer transition-all hover:shadow-lg ${theme === 'dark' ? 'bg-gray-800 border-gray-700 hover:border-blue-600' : 'bg-white border-gray-200 hover:border-blue-600'}`}
                 >
                   <div className="flex items-center justify-between mb-3">
