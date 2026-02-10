@@ -46,6 +46,7 @@ const NOTIFICATION_TIME = 5 * 60 * 1000; // 5 minutes to respond to notification
 
 // Mock data
 const initialFlights: Flight[] = [
+  // 5 FULLY BOOKED FLIGHTS (0 available) - For queue demo
   {
     id: 'FL001',
     flightNumber: 'AA 1234',
@@ -55,11 +56,11 @@ const initialFlights: Flight[] = [
     departureTime: '08:00',
     arrivalTime: '11:30',
     totalSeats: 180,
-    availableSeats: 45,
+    availableSeats: 0,
     reservedSeats: 0,
-    bookedSeats: 135,
+    bookedSeats: 180,
     price: { economy: 299, business: 899, firstClass: 1499 },
-    status: FlightStatus.SeatsAvailable
+    status: FlightStatus.FullyBooked
   },
   {
     id: 'FL002',
@@ -70,11 +71,11 @@ const initialFlights: Flight[] = [
     departureTime: '14:00',
     arrivalTime: '22:15',
     totalSeats: 200,
-    availableSeats: 8,
+    availableSeats: 0,
     reservedSeats: 0,
-    bookedSeats: 192,
+    bookedSeats: 200,
     price: { economy: 349, business: 999, firstClass: 1699 },
-    status: FlightStatus.LimitedSeats
+    status: FlightStatus.FullyBooked
   },
   {
     id: 'FL003',
@@ -100,11 +101,11 @@ const initialFlights: Flight[] = [
     departureTime: '11:00',
     arrivalTime: '14:30',
     totalSeats: 175,
-    availableSeats: 82,
+    availableSeats: 0,
     reservedSeats: 0,
-    bookedSeats: 93,
+    bookedSeats: 175,
     price: { economy: 259, business: 779, firstClass: 1299 },
-    status: FlightStatus.SeatsAvailable
+    status: FlightStatus.FullyBooked
   },
   {
     id: 'FL005',
@@ -115,12 +116,13 @@ const initialFlights: Flight[] = [
     departureTime: '06:00',
     arrivalTime: '08:45',
     totalSeats: 160,
-    availableSeats: 68,
+    availableSeats: 0,
     reservedSeats: 0,
-    bookedSeats: 92,
+    bookedSeats: 160,
     price: { economy: 189, business: 489, firstClass: 899 },
-    status: FlightStatus.SeatsAvailable
+    status: FlightStatus.FullyBooked
   },
+  // 5 FLIGHTS WITH 1 SEAT LEFT (1 available) - For queue demo
   {
     id: 'FL006',
     flightNumber: 'NAS 2002',
@@ -130,9 +132,9 @@ const initialFlights: Flight[] = [
     departureTime: '22:30',
     arrivalTime: '06:15',
     totalSeats: 260,
-    availableSeats: 45,
+    availableSeats: 1,
     reservedSeats: 0,
-    bookedSeats: 215,
+    bookedSeats: 259,
     price: { economy: 549, business: 1399, firstClass: 2299 },
     status: FlightStatus.LimitedSeats
   },
@@ -145,9 +147,9 @@ const initialFlights: Flight[] = [
     departureTime: '21:00',
     arrivalTime: '07:30',
     totalSeats: 280,
-    availableSeats: 52,
+    availableSeats: 1,
     reservedSeats: 0,
-    bookedSeats: 228,
+    bookedSeats: 279,
     price: { economy: 649, business: 1699, firstClass: 2799 },
     status: FlightStatus.LimitedSeats
   },
@@ -160,11 +162,11 @@ const initialFlights: Flight[] = [
     departureTime: '23:00',
     arrivalTime: '06:00',
     totalSeats: 220,
-    availableSeats: 89,
+    availableSeats: 1,
     reservedSeats: 0,
-    bookedSeats: 131,
+    bookedSeats: 219,
     price: { economy: 499, business: 1299, firstClass: 2099 },
-    status: FlightStatus.SeatsAvailable
+    status: FlightStatus.LimitedSeats
   },
   {
     id: 'FL009',
@@ -175,11 +177,11 @@ const initialFlights: Flight[] = [
     departureTime: '14:00',
     arrivalTime: '22:30',
     totalSeats: 240,
-    availableSeats: 0,
+    availableSeats: 1,
     reservedSeats: 0,
-    bookedSeats: 240,
+    bookedSeats: 239,
     price: { economy: 399, business: 1099, firstClass: 1799 },
-    status: FlightStatus.FullyBooked
+    status: FlightStatus.LimitedSeats
   },
   {
     id: 'FL010',
@@ -190,12 +192,13 @@ const initialFlights: Flight[] = [
     departureTime: '09:30',
     arrivalTime: '11:15',
     totalSeats: 160,
-    availableSeats: 42,
+    availableSeats: 1,
     reservedSeats: 0,
-    bookedSeats: 118,
+    bookedSeats: 159,
     price: { economy: 189, business: 489, firstClass: 899 },
-    status: FlightStatus.SeatsAvailable
+    status: FlightStatus.LimitedSeats
   },
+  // Additional flights with normal availability
   {
     id: 'FL011',
     flightNumber: 'NAS 2007',

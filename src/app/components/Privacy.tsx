@@ -16,7 +16,7 @@ export const Privacy: React.FC = () => {
       <nav className={`sticky top-0 z-50 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => window.location.href = '/'}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all ${isActive('/') ? 'bg-blue-600 text-white' : theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
           >
             <Home className="w-5 h-5" />
