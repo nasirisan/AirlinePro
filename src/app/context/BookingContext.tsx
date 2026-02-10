@@ -449,9 +449,27 @@ const saveToStorage = <T,>(key: string, value: T): void => {
   }
 };
 
+// IDs of flights that should always load from static initial data
+const STATIC_FLIGHT_IDS = ['FL001', 'FL002', 'FL003', 'FL004', 'FL005', 'FL006', 'FL007', 'FL008', 'FL009', 'FL010'];
+
 const loadFlightsFromStorage = (): Flight[] => {
   const storedFlights = loadFromStorage<Flight[]>('nas-flights', initialFlights);
-  return storedFlights.length > 0 ? storedFlights : initialFlights;
+  if (storedFlights.length === 0) return initialFlights;
+
+  // Always reset static demo flights to their initial state
+  const staticFlights = initialFlights.filter(f => STATIC_FLIGHT_IDS.includes(f.id));
+  const dynamicFlights = storedFlights.filter(f => !STATIC_FLIGHT_IDS.includes(f.id));
+
+  // Merge: static flights keep initial values, others keep stored values
+  const merged = initialFlights.map(initial => {
+    if (STATIC_FLIGHT_IDS.includes(initial.id)) {
+      return initial; // Always use the hardcoded data
+    }
+    const stored = dynamicFlights.find(s => s.id === initial.id);
+    return stored || initial;
+  });
+
+  return merged;
 };
 
 export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -574,7 +592,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
           );
           
           // Check waiting list
-          processWaitingList(reservation.flightId);
+          processWaitingList(reservation.flightId, 1);
         });
         
         return prev.filter(r => r.expiresAt > now || r.status !== BookingStatus.Reserved);
@@ -584,12 +602,15 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => clearInterval(interval);
   }, [addSystemLog]);
 
-  const processWaitingList = useCallback((flightId: string) => {
+  const processWaitingList = useCallback((flightId: string, seatsJustFreed: number = 0) => {
     const waitingList = waitingLists[flightId] || [];
     if (waitingList.length === 0) return;
     
     const flight = flights.find(f => f.id === flightId);
-    if (!flight || flight.availableSeats === 0) return;
+    if (!flight) return;
+    // Account for seats freed in the same tick (React state not yet updated)
+    const effectiveAvailable = flight.availableSeats + seatsJustFreed;
+    if (effectiveAvailable === 0) return;
     
     // Sort by priority (First Class > Business > Economy) and then by join time
     const priorityQueue = new PriorityQueue<WaitingListEntry>();
@@ -887,7 +908,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
 
     // Notify next in waiting list if any
-    processWaitingList(booking.flightId);
+    processWaitingList(booking.flightId, 1);
 
     return true;
   }, [bookings, addSystemLog, processWaitingList]);
