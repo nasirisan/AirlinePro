@@ -421,13 +421,42 @@ const generateSeats = (flightId: string, totalSeats: number): Seat[] => {
   return seats;
 };
 
+// localStorage helper functions
+const loadFromStorage = <T,>(key: string, defaultValue: T): T => {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (error) {
+    console.warn(`Failed to load ${key} from localStorage:`, error);
+    return defaultValue;
+  }
+};
+
+const saveToStorage = <T,>(key: string, value: T): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Failed to save ${key} to localStorage:`, error);
+  }
+};
+
 export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [flights, setFlights] = useState<Flight[]>(initialFlights);
+  const [flights, setFlights] = useState<Flight[]>(() => 
+    loadFromStorage('nas-flights', initialFlights)
+  );
   const [seats, setSeats] = useState<Record<string, Seat[]>>({});
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [waitingLists, setWaitingLists] = useState<Record<string, WaitingListEntry[]>>({});
-  const [systemLogs, setSystemLogs] = useState<SystemLog[]>([]);
+  const [reservations, setReservations] = useState<Reservation[]>(() =>
+    loadFromStorage('nas-reservations', [])
+  );
+  const [bookings, setBookings] = useState<Booking[]>(() =>
+    loadFromStorage('nas-bookings', [])
+  );
+  const [waitingLists, setWaitingLists] = useState<Record<string, WaitingListEntry[]>>(() =>
+    loadFromStorage('nas-waiting-lists', {})
+  );
+  const [systemLogs, setSystemLogs] = useState<SystemLog[]>(() =>
+    loadFromStorage('nas-system-logs', [])
+  );
   const [currentPassenger, setCurrentPassenger] = useState<Passenger | null>(null);
   const [currentReservation, setCurrentReservation] = useState<Reservation | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -440,7 +469,30 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
     setSeats(initialSeats);
   }, []);
+  // Save flights to localStorage
+  useEffect(() => {
+    saveToStorage('nas-flights', flights);
+  }, [flights]);
 
+  // Save reservations to localStorage
+  useEffect(() => {
+    saveToStorage('nas-reservations', reservations);
+  }, [reservations]);
+
+  // Save bookings to localStorage
+  useEffect(() => {
+    saveToStorage('nas-bookings', bookings);
+  }, [bookings]);
+
+  // Save waiting lists to localStorage
+  useEffect(() => {
+    saveToStorage('nas-waiting-lists', waitingLists);
+  }, [waitingLists]);
+
+  // Save system logs to localStorage
+  useEffect(() => {
+    saveToStorage('nas-system-logs', systemLogs);
+  }, [systemLogs]);
   const addSystemLog = useCallback((action: string, details: string, flightId?: string, passengerId?: string) => {
     const log: SystemLog = {
       id: `LOG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
