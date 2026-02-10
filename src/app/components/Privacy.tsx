@@ -79,7 +79,7 @@ export const Privacy: React.FC = () => {
                 5. Your Rights
               </h2>
               <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
-                You have the right to access, correct, or delete your personal information. To exercise these rights or for privacy concerns, contact privacy@nasairlines.com. We will respond within 30 days.
+                You have the right to access, correct, or delete your personal information. To exercise these rights or for privacy concerns, contact privacy@sevenairlines.com. We will respond within 30 days.
               </p>
             </section>
 
@@ -106,7 +106,7 @@ export const Privacy: React.FC = () => {
                 Last Updated: February 2026
               </p>
               <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                For privacy inquiries, contact privacy@nasairlines.com
+                For privacy inquiries, contact privacy@sevenairlines.com
               </p>
             </div>
           </div>

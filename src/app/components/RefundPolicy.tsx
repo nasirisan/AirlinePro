@@ -58,7 +58,7 @@ export const RefundPolicy: React.FC = () => {
 
             <section>
               <h2 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                3. Cancellation by NAS Airlines
+                3. Cancellation by Seven Airlines
               </h2>
               <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
                 If we cancel your flight, you will receive a full refund or rebooking on another flight at no additional charge. You will be notified via email within 2 hours of cancellation.
@@ -97,7 +97,7 @@ export const RefundPolicy: React.FC = () => {
                 7. Refund Requests
               </h2>
               <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
-                To request a refund, log in to your account or contact support@nasairlines.com with your booking reference. Processing may take up to 48 hours after approval.
+                To request a refund, log in to your account or contact support@sevenairlines.com with your booking reference. Processing may take up to 48 hours after approval.
               </p>
             </section>
 
@@ -106,7 +106,7 @@ export const RefundPolicy: React.FC = () => {
                 Last Updated: February 2026
               </p>
               <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                For refund inquiries, contact refunds@nasairlines.com
+                For refund inquiries, contact refunds@sevenairlines.com
               </p>
             </div>
           </div>

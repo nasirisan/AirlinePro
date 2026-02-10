@@ -14,17 +14,17 @@ export const Press: React.FC = () => {
   const articles = [
     {
       date: '2025-11-15',
-      title: 'NAS Airlines Launches Revolutionary Queue-Based Waiting List System',
+      title: 'Seven Airlines Launches Revolutionary Queue-Based Waiting List System',
       excerpt: 'Introducing fair and transparent seat allocation with VIP priority for frequent flyers...'
     },
     {
       date: '2025-09-08',
-      title: 'NAS Airlines Achieves 99.2% On-Time Performance in Q3 2025',
+      title: 'Seven Airlines Achieves 99.2% On-Time Performance in Q3 2025',
       excerpt: 'Industry-leading operational excellence continues to drive customer satisfaction...'
     },
     {
       date: '2025-07-22',
-      title: 'NAS Airlines Expands Fleet with 25 New Sustainable Aircraft',
+      title: 'Seven Airlines Expands Fleet with 25 New Sustainable Aircraft',
       excerpt: 'Commitment to carbon-neutral flying by 2030 with latest generation aircraft...'
     }
   ];
@@ -55,7 +55,7 @@ export const Press: React.FC = () => {
             Press & Media
           </h1>
           <p className={`text-xl mb-12 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            Latest news and announcements from NAS Airlines
+            Latest news and announcements from Seven Airlines
           </p>
 
           <div className="space-y-6 mb-12">
@@ -89,7 +89,7 @@ export const Press: React.FC = () => {
               For media inquiries, interviews, or high-resolution images, please contact our Press Relations team:
             </p>
             <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              press@nasairlines.com
+              press@sevenairlines.com
             </p>
           </div>
         </motion.div>

@@ -43,7 +43,7 @@ export const Careers: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className={`text-5xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            Careers at NAS Airlines
+            Careers at Seven Airlines
           </h1>
           <p className={`text-xl mb-12 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
             Join our team and be part of the aviation industry's brightest talent
@@ -116,7 +116,7 @@ export const Careers: React.FC = () => {
           <div className={`rounded-xl border p-8 mt-12 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <p className={`text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
               Don't see a position that fits? Send your resume to
-              <span className="font-bold text-blue-600"> careers@nasairlines.com</span>
+              <span className="font-bold text-blue-600"> careers@sevenairlines.com</span>
             </p>
           </div>
         </motion.div>

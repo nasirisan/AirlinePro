@@ -127,7 +127,7 @@ export const FlightSearch: React.FC = () => {
             <div className="bg-blue-600 p-2 rounded-lg">
               <Plane className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">NAS Airlines</span>
+            <span className="text-2xl font-bold text-gray-900 dark:text-white">Seven Airlines</span>
           </div>
           
           <div className="hidden md:flex items-center gap-2">
@@ -182,7 +182,7 @@ export const FlightSearch: React.FC = () => {
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
             </button>
             <button className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-              Become a Member
+              Join Newsletter
             </button>
             <button
               onClick={() => navigate('/admin/login')}
@@ -346,7 +346,7 @@ export const FlightSearch: React.FC = () => {
         {!hasSearched && (
           <div className="mb-16">
             <h2 className={`text-3xl font-bold mb-10 text-center ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-              Why Choose NAS Airlines?
+              Why Choose Seven Airlines?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {features.map((feature, idx) => {
@@ -463,7 +463,7 @@ export const FlightSearch: React.FC = () => {
         {!hasSearched && (
           <div className={`mb-16 py-12 px-8 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-center`}>
             <h2 className="text-4xl font-bold text-white mb-4">Ready to Fly?</h2>
-            <p className="text-blue-100 mb-6 text-lg">Start your journey with NAS Airlines today</p>
+            <p className="text-blue-100 mb-6 text-lg">Start your journey with Seven Airlines today</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -566,7 +566,7 @@ export const FlightSearch: React.FC = () => {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Plane className="w-6 h-6 text-blue-600" />
-                <span className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>NAS Airlines</span>
+                <span className={`font-bold text-lg ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Seven Airlines</span>
               </div>
               <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                 Your trusted travel partner for seamless bookings and service.
@@ -603,13 +603,13 @@ export const FlightSearch: React.FC = () => {
             <div>
               <h4 className={`font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Follow Us</h4>
               <div className="flex gap-3">
-                <a href="https://facebook.com/nasairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
+                <a href="https://facebook.com/sevenairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a href="https://twitter.com/nasairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
+                <a href="https://twitter.com/sevenairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
                   <Twitter className="w-5 h-5" />
                 </a>
-                <a href="https://linkedin.com/company/nasairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
+                <a href="https://linkedin.com/company/sevenairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
                   <Linkedin className="w-5 h-5" />
                 </a>
               </div>
@@ -617,13 +617,13 @@ export const FlightSearch: React.FC = () => {
           </div>
 
           <div className={`border-t ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'} pt-8 text-center text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-            <p>&copy; 2026 NAS Airlines. All rights reserved. | Flying safely since 1995</p>
+            <p>&copy; 2026 Seven Airlines. All rights reserved. | Flying safely since 1995</p>
             <div className="flex items-center justify-center gap-2 mt-4">
               <Mail className="w-4 h-4" />
-              <span>support@nasairlines.com</span>
+              <span>support@sevenairlines.com</span>
               <span className="mx-2">•</span>
               <Phone className="w-4 h-4" />
-              <span>1-800-NAS-AIRLINES</span>
+              <span>1-800-SEVEN-AIR</span>
             </div>
           </div>
         </footer>

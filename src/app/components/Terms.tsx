@@ -43,7 +43,7 @@ export const Terms: React.FC = () => {
                 1. Booking and Reservation
               </h2>
               <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
-                All flight bookings through NAS Airlines are subject to these terms and conditions. By completing a booking, you accept and agree to be bound by these terms. A booking is only confirmed upon successful payment and receipt of a confirmation email.
+                All flight bookings through Seven Airlines are subject to these terms and conditions. By completing a booking, you accept and agree to be bound by these terms. A booking is only confirmed upon successful payment and receipt of a confirmation email.
               </p>
             </section>
 
@@ -88,7 +88,7 @@ export const Terms: React.FC = () => {
                 6. Liability Limitations
               </h2>
               <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'} leading-relaxed`}>
-                NAS Airlines is not liable for delays, cancellations, or other issues beyond our reasonable control. Our liability is limited to the price of the ticket. Extended liability insurance can be purchased for additional coverage.
+                Seven Airlines is not liable for delays, cancellations, or other issues beyond our reasonable control. Our liability is limited to the price of the ticket. Extended liability insurance can be purchased for additional coverage.
               </p>
             </section>
 
@@ -106,7 +106,7 @@ export const Terms: React.FC = () => {
                 Last Updated: February 2026
               </p>
               <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                For questions about these terms, contact legal@nasairlines.com
+                For questions about these terms, contact legal@sevenairlines.com
               </p>
             </div>
           </div>

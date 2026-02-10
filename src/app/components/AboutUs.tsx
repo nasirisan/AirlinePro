@@ -34,7 +34,7 @@ export const AboutUs: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className={`text-5xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-            About NAS Airlines
+            About Seven Airlines
           </h1>
           <p className={`text-xl mb-12 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
             Your trusted partner for seamless air travel since 1995
@@ -69,7 +69,7 @@ export const AboutUs: React.FC = () => {
           <div className={`rounded-xl border p-8 mb-12 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
             <h2 className={`text-3xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Our Mission</h2>
             <p className={`text-lg mb-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-              At NAS Airlines, we believe that flying should be simple, safe, and enjoyable. Since our founding in 1995, we have been committed to connecting people and places with world-class service.
+              At Seven Airlines, we believe that flying should be simple, safe, and enjoyable. Since our founding in 1995, we have been committed to connecting people and places with world-class service.
             </p>
             <p className={`text-lg ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
               Our innovative queue-based waiting list system ensures fairness while prioritizing premium passengers. We leverage cutting-edge technology to provide real-time updates, secure payments, and transparent booking processes that put you in control.
