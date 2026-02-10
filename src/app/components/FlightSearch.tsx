@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
 import { Flight, PassengerType } from '../types';
 import { StatusBadge } from './StatusBadge';
-import { Plane, Calendar, Search, Users, DollarSign, Moon, Sun, Shield, Bell, Clock, ArrowRight, MapPin, Phone, Mail, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Plane, Calendar, Search, Users, DollarSign, Moon, Sun, Shield, Bell, Clock, ArrowRight, MapPin, Phone, Mail, Facebook, Twitter, Linkedin, Home } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export const FlightSearch: React.FC = () => {
@@ -102,7 +102,7 @@ export const FlightSearch: React.FC = () => {
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
             </button>
             <button className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-              Login
+              Become a Member
             </button>
             <button
               onClick={() => navigate('/admin/login')}
