@@ -48,7 +48,7 @@ export const AdminLogin: React.FC = () => {
               Admin Portal
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              SkyBook Airlines Operations
+              NAS Airlines Operations
             </p>
           </div>
 

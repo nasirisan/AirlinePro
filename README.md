@@ -1,4 +1,4 @@
-# SkyBook Airlines - Airline Booking System
+# NAS Airlines - Airline Booking System
 
 A modern, professional airline booking web application that demonstrates real-world airline reservation logic using **Queue** and **Priority Queue** data structures.
 
