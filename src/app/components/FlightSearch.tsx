@@ -81,13 +81,13 @@ export const FlightSearch: React.FC = () => {
           </div>
           
           <div className="hidden md:flex items-center gap-8">
-            <button className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+            <button onClick={() => navigate('/bookings')} className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
               My Bookings
             </button>
-            <button className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+            <button onClick={() => navigate('/flight-status')} className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
               Flight Status
             </button>
-            <button className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+            <button onClick={() => navigate('/help')} className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
               Help
             </button>
           </div>
@@ -472,42 +472,42 @@ export const FlightSearch: React.FC = () => {
             <div>
               <h4 className={`font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Company</h4>
               <ul className={`space-y-2 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                <li><button className="hover:text-blue-600">About Us</button></li>
-                <li><button className="hover:text-blue-600">Careers</button></li>
-                <li><button className="hover:text-blue-600">Press</button></li>
+                <li><button onClick={() => navigate('/about')} className="hover:text-blue-600">About Us</button></li>
+                <li><button onClick={() => navigate('/careers')} className="hover:text-blue-600">Careers</button></li>
+                <li><button onClick={() => navigate('/press')} className="hover:text-blue-600">Press</button></li>
               </ul>
             </div>
             
             <div>
               <h4 className={`font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Support</h4>
               <ul className={`space-y-2 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                <li><button className="hover:text-blue-600">Contact Us</button></li>
-                <li><button className="hover:text-blue-600">FAQ</button></li>
-                <li><button className="hover:text-blue-600">24/7 Help</button></li>
+                <li><button onClick={() => navigate('/contact')} className="hover:text-blue-600">Contact Us</button></li>
+                <li><button onClick={() => navigate('/help')} className="hover:text-blue-600">FAQ</button></li>
+                <li><button onClick={() => navigate('/help')} className="hover:text-blue-600">24/7 Help</button></li>
               </ul>
             </div>
             
             <div>
               <h4 className={`font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Legal</h4>
               <ul className={`space-y-2 text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-                <li><button className="hover:text-blue-600">Terms & Conditions</button></li>
-                <li><button className="hover:text-blue-600">Privacy Policy</button></li>
-                <li><button className="hover:text-blue-600">Refund Policy</button></li>
+                <li><button onClick={() => navigate('/terms')} className="hover:text-blue-600">Terms & Conditions</button></li>
+                <li><button onClick={() => navigate('/privacy')} className="hover:text-blue-600">Privacy Policy</button></li>
+                <li><button onClick={() => navigate('/refund-policy')} className="hover:text-blue-600">Refund Policy</button></li>
               </ul>
             </div>
 
             <div>
               <h4 className={`font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Follow Us</h4>
               <div className="flex gap-3">
-                <button className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
+                <a href="https://facebook.com/nasairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
                   <Facebook className="w-5 h-5" />
-                </button>
-                <button className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
+                </a>
+                <a href="https://twitter.com/nasairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
                   <Twitter className="w-5 h-5" />
-                </button>
-                <button className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
+                </a>
+                <a href="https://linkedin.com/company/nasairlines" className={`p-2 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-gray-300 hover:text-blue-400' : 'bg-gray-100 text-gray-600 hover:text-blue-600'} transition-colors`}>
                   <Linkedin className="w-5 h-5" />
-                </button>
+                </a>
               </div>
             </div>
           </div>
