@@ -413,11 +413,17 @@ const generateSeats = (flightId: string, totalSeats: number): Seat[] => {
       if (row <= 2) ticketClass = TicketClass.First;
       else if (row <= 8) ticketClass = TicketClass.Business;
       
+      const seatNumber = `${row}${seatLetters[i]}`;
+      // Mark most seats as booked, leaving only a few available
+      // Keep last row and last 2 seats of second-to-last row available
+      const seatIndex = seats.length;
+      const isAvailable = seatIndex >= totalSeats - 8;
+      
       seats.push({
         id: `${flightId}-${row}${seatLetters[i]}`,
-        seatNumber: `${row}${seatLetters[i]}`,
+        seatNumber: seatNumber,
         class: ticketClass,
-        status: SeatStatus.Available
+        status: isAvailable ? SeatStatus.Available : SeatStatus.Booked
       });
     }
   }
@@ -602,18 +608,29 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     
     // Notify the first person in queue
     const nextEntry = priorityQueue.dequeue();
-    if (nextEntry && !nextEntry.notified) {
+    if (nextEntry) {
       const notificationExpiresAt = Date.now() + NOTIFICATION_TIME;
-      
-      setWaitingLists(prev => ({
-        ...prev,
-        [flightId]: (prev[flightId] || []).map(entry =>
-          entry.id === nextEntry.id
-            ? { ...entry, notified: true, notifiedAt: Date.now(), notificationExpiresAt }
-            : entry
-        )
-      }));
-      
+
+      setWaitingLists(prev => {
+        const remaining = (prev[flightId] || []).filter(entry => entry.id !== nextEntry.id);
+        const reindexed = remaining.map((entry, index) => ({
+          ...entry,
+          position: index + 1
+        }));
+
+        return {
+          ...prev,
+          [flightId]: reindexed
+        };
+      });
+
+      addSystemLog(
+        'Waiting list dequeued',
+        `${nextEntry.passenger.name} removed from waiting list due to available seat`,
+        flightId,
+        nextEntry.passenger.id
+      );
+
       addSystemLog(
         'Passenger notified',
         `${nextEntry.passenger.name} notified of available seat`,

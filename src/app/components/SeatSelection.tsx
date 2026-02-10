@@ -44,11 +44,11 @@ export const SeatSelection: React.FC = () => {
         if (seat.class === TicketClass.Business) return 'bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-300 border-blue-300 dark:border-blue-700 hover:bg-blue-200 dark:hover:bg-blue-800/50 cursor-pointer';
         return 'bg-green-100 dark:bg-green-900/30 text-green-900 dark:text-green-300 border-green-300 dark:border-green-700 hover:bg-green-200 dark:hover:bg-green-800/50 cursor-pointer';
       case SeatStatus.Reserved:
-        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700 cursor-not-allowed';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-300 dark:border-red-700 cursor-not-allowed line-through opacity-70';
       case SeatStatus.Booked:
-        return 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-500 border-gray-300 dark:border-gray-600 cursor-not-allowed';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-300 dark:border-red-700 cursor-not-allowed line-through opacity-70';
       default:
-        return 'bg-gray-100 dark:bg-gray-800 text-gray-400 border-gray-300 dark:border-gray-700';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-300 dark:border-red-700 cursor-not-allowed line-through opacity-70';
     }
   };
 
@@ -110,8 +110,16 @@ export const SeatSelection: React.FC = () => {
                         <span>First Class (Available)</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded border-2 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600"></div>
-                        <span>Unavailable</span>
+                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 line-through"></div>
+                        <span className="line-through text-red-600 dark:text-red-400">Reserved</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 line-through"></div>
+                        <span className="line-through text-red-600 dark:text-red-400">Booked</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 line-through"></div>
+                        <span className="line-through text-red-600 dark:text-red-400">Unavailable</span>
                       </div>
                     </div>
                   </div>
@@ -144,7 +152,11 @@ export const SeatSelection: React.FC = () => {
                                 seat.id === selectedSeatId
                               )}`}
                             >
-                              {seat.seatNumber.slice(-1)}
+                              {seat.status !== SeatStatus.Available && seat.id !== selectedSeatId ? (
+                                <span className="text-2xl font-bold">✕</span>
+                              ) : (
+                                seat.seatNumber.slice(-1)
+                              )}
                             </motion.button>
                           ))}
                           <div className="w-6"></div>
@@ -160,7 +172,11 @@ export const SeatSelection: React.FC = () => {
                                 seat.id === selectedSeatId
                               )}`}
                             >
-                              {seat.seatNumber.slice(-1)}
+                              {seat.status !== SeatStatus.Available && seat.id !== selectedSeatId ? (
+                                <span className="text-2xl font-bold">✕</span>
+                              ) : (
+                                seat.seatNumber.slice(-1)
+                              )}
                             </motion.button>
                           ))}
                         </div>
