@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
-import { ArrowLeft, Search, AlertCircle } from 'lucide-react';
+import { Home, Search, AlertCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export const FlightStatus: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { bookings, theme } = useBooking();
   const [searchRef, setSearchRef] = useState('');
   const [foundBooking, setFoundBooking] = useState<typeof bookings[0] | null>(null);
+
+  const isActive = (path: string) => location.pathname === path;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,13 +22,19 @@ export const FlightStatus: React.FC = () => {
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       <nav className={`sticky top-0 z-50 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b`}>
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
             onClick={() => navigate('/')}
-            className={`flex items-center gap-2 font-medium transition-colors ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all ${isActive('/') ? 'bg-blue-600 text-white' : theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
           >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Home
+            <Home className="w-5 h-5" />
+            Home
+          </button>
+          <button
+            onClick={() => navigate('/flight-status')}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all ${isActive('/flight-status') ? 'bg-blue-600 text-white' : theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
+          >
+            Flight Status
           </button>
         </div>
       </nav>

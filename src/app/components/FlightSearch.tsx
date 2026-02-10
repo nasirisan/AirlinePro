@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 
 export const FlightSearch: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { searchFlights, setCurrentPassenger, theme, toggleTheme } = useBooking();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -15,6 +16,8 @@ export const FlightSearch: React.FC = () => {
   const [passengers, setPassengers] = useState(1);
   const [searchResults, setSearchResults] = useState<Flight[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+
+  const isActive = (path: string) => location.pathname === path;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,14 +85,46 @@ export const FlightSearch: React.FC = () => {
             <span className="text-2xl font-bold text-gray-900 dark:text-white">NAS Airlines</span>
           </div>
           
-          <div className="hidden md:flex items-center gap-8">
-            <button onClick={() => navigate('/bookings')} className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+          <div className="hidden md:flex items-center gap-2">
+            <button
+              onClick={() => navigate('/')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                isActive('/') 
+                  ? 'bg-blue-600 text-white' 
+                  : theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <Home className="w-4 h-4" />
+              Home
+            </button>
+            <button
+              onClick={() => navigate('/bookings')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                isActive('/bookings')
+                  ? 'bg-blue-600 text-white'
+                  : theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
               My Bookings
             </button>
-            <button onClick={() => navigate('/flight-status')} className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+            <button
+              onClick={() => navigate('/flight-status')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                isActive('/flight-status')
+                  ? 'bg-blue-600 text-white'
+                  : theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
               Flight Status
             </button>
-            <button onClick={() => navigate('/help')} className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}>
+            <button
+              onClick={() => navigate('/help')}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                isActive('/help')
+                  ? 'bg-blue-600 text-white'
+                  : theme === 'dark' ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
               Help
             </button>
           </div>
