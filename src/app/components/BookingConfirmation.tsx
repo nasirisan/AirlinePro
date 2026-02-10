@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
 import { CheckCircle, Plane, Calendar, Clock, MapPin, User, CreditCard, Download, Home } from 'lucide-react';
@@ -10,6 +10,155 @@ export const BookingConfirmation: React.FC = () => {
   const { bookings, theme } = useBooking();
 
   const booking = bookings.find(b => b.id === bookingId);
+
+  const downloadReceipt = useCallback(() => {
+    if (!booking) return;
+
+    const flightDate = new Date(booking.flight.date).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const receiptHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Seven Airlines - E-Ticket Receipt</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f3f4f6; padding: 40px; color: #1f2937; }
+    .receipt { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; padding: 32px; text-align: center; }
+    .header h1 { font-size: 28px; margin-bottom: 4px; }
+    .header p { font-size: 14px; opacity: 0.85; }
+    .ref-bar { background: #eff6ff; border-bottom: 1px solid #bfdbfe; padding: 20px; text-align: center; }
+    .ref-bar .label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; }
+    .ref-bar .value { font-size: 28px; font-weight: 800; letter-spacing: 3px; color: #1e40af; margin-top: 4px; }
+    .body { padding: 32px; }
+    .section-title { font-size: 16px; font-weight: 700; color: #374151; margin-bottom: 16px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .field .label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .field .value { font-size: 15px; font-weight: 600; color: #111827; }
+    .route-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 28px; text-align: center; }
+    .route-box .cities { font-size: 22px; font-weight: 700; color: #1f2937; }
+    .route-box .arrow { color: #2563eb; margin: 0 12px; }
+    .route-box .flight-num { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .price-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 28px; }
+    .price-box .label { font-size: 12px; color: #6b7280; }
+    .price-box .amount { font-size: 36px; font-weight: 800; color: #16a34a; }
+    .notice { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; font-size: 13px; color: #92400e; margin-bottom: 20px; }
+    .notice strong { display: block; margin-bottom: 4px; }
+    .notice ul { padding-left: 18px; margin-top: 6px; }
+    .notice li { margin-bottom: 3px; }
+    .footer { border-top: 1px solid #e5e7eb; padding: 20px 32px; text-align: center; font-size: 12px; color: #9ca3af; }
+    .barcode { font-family: 'Courier New', monospace; font-size: 14px; letter-spacing: 4px; color: #374151; margin-top: 12px; }
+    @media print { body { background: #fff; padding: 0; } .receipt { box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <div class="receipt">
+    <div class="header">
+      <h1>✈ Seven Airlines</h1>
+      <p>Electronic Ticket / Receipt</p>
+    </div>
+
+    <div class="ref-bar">
+      <div class="label">Booking Reference</div>
+      <div class="value">${booking.bookingReference}</div>
+    </div>
+
+    <div class="body">
+      <div class="route-box">
+        <div class="cities">
+          ${booking.flight.from} <span class="arrow">→</span> ${booking.flight.to}
+        </div>
+        <div class="flight-num">Flight ${booking.flight.flightNumber}</div>
+      </div>
+
+      <div class="section-title">Flight Details</div>
+      <div class="grid">
+        <div class="field">
+          <div class="label">Date</div>
+          <div class="value">${flightDate}</div>
+        </div>
+        <div class="field">
+          <div class="label">Departure</div>
+          <div class="value">${booking.flight.departureTime}</div>
+        </div>
+        <div class="field">
+          <div class="label">Arrival</div>
+          <div class="value">${booking.flight.arrivalTime}</div>
+        </div>
+        <div class="field">
+          <div class="label">Status</div>
+          <div class="value" style="color: #16a34a;">Confirmed</div>
+        </div>
+      </div>
+
+      <div class="section-title">Passenger Details</div>
+      <div class="grid">
+        <div class="field">
+          <div class="label">Passenger Name</div>
+          <div class="value">${booking.passenger.name}</div>
+        </div>
+        <div class="field">
+          <div class="label">Email</div>
+          <div class="value">${booking.passenger.email}</div>
+        </div>
+        <div class="field">
+          <div class="label">Seat Number</div>
+          <div class="value">${booking.seat.seatNumber}</div>
+        </div>
+        <div class="field">
+          <div class="label">Class</div>
+          <div class="value">${booking.ticketClass}</div>
+        </div>
+      </div>
+
+      <div class="price-box">
+        <div class="label">Total Amount Paid</div>
+        <div class="amount">$${booking.price}</div>
+      </div>
+
+      <div class="notice">
+        <strong>Important Information</strong>
+        <ul>
+          <li>Please arrive at the airport at least 2 hours before departure</li>
+          <li>Keep your booking reference handy for check-in</li>
+          <li>Valid ID / passport is required for boarding</li>
+          <li>Check baggage allowance for your ticket class</li>
+        </ul>
+      </div>
+
+      <div style="text-align: center;">
+        <div class="barcode">${booking.bookingReference}</div>
+        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px;">
+          Issued on ${new Date(booking.bookedAt).toLocaleString()}
+        </p>
+      </div>
+    </div>
+
+    <div class="footer">
+      Seven Airlines &bull; support@sevenairlines.com &bull; 1-800-SEVEN-AIR<br/>
+      This is an electronically generated receipt and does not require a signature.
+    </div>
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([receiptHTML], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `SevenAirlines-Receipt-${booking.bookingReference}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [booking]);
 
   if (!booking) {
     return (
@@ -167,9 +316,12 @@ export const BookingConfirmation: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+              <button
+                onClick={downloadReceipt}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
                 <Download className="w-5 h-5" />
-                Download E-Ticket
+                Download Receipt
               </button>
               <button
                 onClick={() => navigate('/')}
