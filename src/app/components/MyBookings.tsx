@@ -7,8 +7,14 @@ import { motion } from 'motion/react';
 export const MyBookings: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { bookings, theme } = useBooking();
+  const { bookings, cancelBooking, theme } = useBooking();
   const isActive = (path: string) => location.pathname === path;
+
+  const handleCancel = (bookingId: string) => {
+    const confirmed = window.confirm('Cancel this booking? This will release your seat.');
+    if (!confirmed) return;
+    cancelBooking(bookingId);
+  };
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
@@ -94,11 +100,30 @@ export const MyBookings: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Status</p>
-                      <span className="inline-block px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm font-bold">
-                        Confirmed
+                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${
+                        booking.status === 'Cancelled'
+                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                          : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      }`}>
+                        {booking.status}
                       </span>
                     </div>
                   </div>
+
+                  {booking.status !== 'Cancelled' && (
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={() => handleCancel(booking.id)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                          theme === 'dark'
+                            ? 'border-red-700 text-red-300 hover:bg-red-900/30'
+                            : 'border-red-300 text-red-700 hover:bg-red-50'
+                        }`}
+                      >
+                        Cancel Booking
+                      </button>
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </div>

@@ -19,6 +19,7 @@ export const FlightSearch: React.FC = () => {
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [showPassengerForm, setShowPassengerForm] = useState(false);
   const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+  const [selectedAction, setSelectedAction] = useState<'seats' | 'waitlist'>('seats');
   const [passengerName, setPassengerName] = useState('');
   const [passengerEmail, setPassengerEmail] = useState('');
   const [passengerType, setPassengerType] = useState<PassengerType>(PassengerType.Normal);
@@ -43,6 +44,13 @@ export const FlightSearch: React.FC = () => {
   };
 
   const handleSelectFlight = (flight: Flight) => {
+    setSelectedAction('seats');
+    setSelectedFlight(flight);
+    setShowPassengerForm(true);
+  };
+
+  const handleJoinWaitlist = (flight: Flight) => {
+    setSelectedAction('waitlist');
     setSelectedFlight(flight);
     setShowPassengerForm(true);
   };
@@ -62,7 +70,11 @@ export const FlightSearch: React.FC = () => {
     };
     
     setCurrentPassenger(passenger);
-    navigate(`/flight/${selectedFlight.id}/seats`);
+    if (selectedAction === 'waitlist') {
+      navigate(`/flight/${selectedFlight.id}/waiting-list`);
+    } else {
+      navigate(`/flight/${selectedFlight.id}/seats`);
+    }
   };
 
   const handleClosePassengerForm = () => {
@@ -71,6 +83,7 @@ export const FlightSearch: React.FC = () => {
     setPassengerName('');
     setPassengerEmail('');
     setPassengerType(PassengerType.Normal);
+    setSelectedAction('seats');
   };
 
   const popularRoutes = [
@@ -533,18 +546,7 @@ export const FlightSearch: React.FC = () => {
                         </button>
                       ) : (
                         <button
-                          onClick={() => {
-                            const mockPassenger = {
-                              id: `PASS-${Date.now()}`,
-                              name: 'John Doe',
-                              email: 'john.doe@email.com',
-                              phone: '+1 (555) 123-4567',
-                              type: PassengerType.Normal,
-                              loyaltyPoints: 0
-                            };
-                            setCurrentPassenger(mockPassenger);
-                            navigate(`/flight/${flight.id}/waiting-list`);
-                          }}
+                          onClick={() => handleJoinWaitlist(flight)}
                           className="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors"
                         >
                           Join Waitlist

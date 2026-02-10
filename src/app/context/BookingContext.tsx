@@ -28,6 +28,7 @@ interface BookingContextType {
   getAvailableDates: (from: string, to: string) => string[];
   selectSeat: (flightId: string, seatId: string, passenger: Passenger) => Reservation | null;
   processPayment: (reservationId: string, success: boolean) => Booking | null;
+  cancelBooking: (bookingId: string) => boolean;
   joinWaitingList: (flightId: string, passenger: Passenger, ticketClass: TicketClass) => WaitingListEntry | null;
   getWaitingListPosition: (entryId: string, flightId: string) => number;
   getFlightById: (flightId: string) => Flight | undefined;
@@ -440,10 +441,13 @@ const saveToStorage = <T,>(key: string, value: T): void => {
   }
 };
 
+const loadFlightsFromStorage = (): Flight[] => {
+  const storedFlights = loadFromStorage<Flight[]>('nas-flights', initialFlights);
+  return storedFlights.length > 0 ? storedFlights : initialFlights;
+};
+
 export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [flights, setFlights] = useState<Flight[]>(() => 
-    loadFromStorage('nas-flights', initialFlights)
-  );
+  const [flights, setFlights] = useState<Flight[]>(() => loadFlightsFromStorage());
   const [seats, setSeats] = useState<Record<string, Seat[]>>({});
   const [reservations, setReservations] = useState<Reservation[]>(() =>
     loadFromStorage('nas-reservations', [])
@@ -469,6 +473,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
     setSeats(initialSeats);
   }, []);
+
+  useEffect(() => {
+    if (flights.length === 0) {
+      setFlights(initialFlights);
+    }
+  }, [flights.length]);
   // Save flights to localStorage
   useEffect(() => {
     saveToStorage('nas-flights', flights);
@@ -811,6 +821,58 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [reservations, flights, addSystemLog, processWaitingList]);
 
+  const cancelBooking = useCallback((bookingId: string): boolean => {
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking || booking.status !== BookingStatus.Confirmed) return false;
+
+    // Update seat to available
+    setSeats(prev => {
+      const updatedSeats = [...(prev[booking.flightId] || [])];
+      const seatIndex = updatedSeats.findIndex(s => s.id === booking.seatId);
+      if (seatIndex !== -1) {
+        updatedSeats[seatIndex] = {
+          ...updatedSeats[seatIndex],
+          status: SeatStatus.Available,
+          reservedBy: undefined,
+          reservedUntil: undefined
+        };
+      }
+      return { ...prev, [booking.flightId]: updatedSeats };
+    });
+
+    // Update flight counts
+    setFlights(prev => prev.map(f => {
+      if (f.id === booking.flightId) {
+        const newAvailable = f.availableSeats + 1;
+        return {
+          ...f,
+          availableSeats: newAvailable,
+          bookedSeats: Math.max(0, f.bookedSeats - 1),
+          status: newAvailable > 10 ? FlightStatus.SeatsAvailable :
+                  newAvailable > 0 ? FlightStatus.LimitedSeats :
+                  FlightStatus.FullyBooked
+        };
+      }
+      return f;
+    }));
+
+    setBookings(prev => prev.map(b =>
+      b.id === bookingId ? { ...b, status: BookingStatus.Cancelled } : b
+    ));
+
+    addSystemLog(
+      'Booking cancelled',
+      `${booking.passenger.name} cancelled booking for seat ${booking.seat.seatNumber}`,
+      booking.flightId,
+      booking.passengerId
+    );
+
+    // Notify next in waiting list if any
+    processWaitingList(booking.flightId);
+
+    return true;
+  }, [bookings, addSystemLog, processWaitingList]);
+
   const joinWaitingList = useCallback((flightId: string, passenger: Passenger, ticketClass: TicketClass): WaitingListEntry | null => {
     const flight = flights.find(f => f.id === flightId);
     if (!flight) return null;
@@ -877,6 +939,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     getAvailableDates,
     selectSeat,
     processPayment,
+    cancelBooking,
     joinWaitingList,
     getWaitingListPosition,
     getFlightById,

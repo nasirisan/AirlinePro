@@ -11,6 +11,7 @@ import { AdminLogin } from './components/AdminLogin';
 import { AdminDashboard } from './components/AdminDashboard';
 import { QueueMonitoring } from './components/QueueMonitoring';
 import { SystemLogs } from './components/SystemLogs';
+import { AdminStatistics } from './components/AdminStatistics';
 import { MyBookings } from './components/MyBookings';
 import { FlightStatus } from './components/FlightStatusPage';
 import { Help } from './components/Help';
@@ -52,6 +53,7 @@ function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/queue-monitoring" element={<QueueMonitoring />} />
           <Route path="/admin/system-logs" element={<SystemLogs />} />
+          <Route path="/admin/statistics" element={<AdminStatistics />} />
         </Routes>
       </Router>
     </BookingProvider>

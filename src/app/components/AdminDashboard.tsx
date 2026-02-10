@@ -164,7 +164,10 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </Link>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <Link
+            to="/admin/statistics"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow"
+          >
             <div className="flex items-center gap-4">
               <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-lg">
                 <BarChart3 className="w-6 h-6 text-green-600 dark:text-green-400" />
@@ -176,7 +179,7 @@ export const AdminDashboard: React.FC = () => {
                 </p>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Flight Overview */}
