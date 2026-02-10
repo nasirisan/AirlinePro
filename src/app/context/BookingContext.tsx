@@ -400,7 +400,7 @@ const initialFlights: Flight[] = [
   }
 ];
 
-const generateSeats = (flightId: string, totalSeats: number): Seat[] => {
+const generateSeats = (flightId: string, totalSeats: number, bookedSeats: number): Seat[] => {
   const seats: Seat[] = [];
   const rows = Math.ceil(totalSeats / 6);
   
@@ -414,16 +414,15 @@ const generateSeats = (flightId: string, totalSeats: number): Seat[] => {
       else if (row <= 8) ticketClass = TicketClass.Business;
       
       const seatNumber = `${row}${seatLetters[i]}`;
-      // Mark most seats as booked, leaving only a few available
-      // Keep last row and last 2 seats of second-to-last row available
       const seatIndex = seats.length;
-      const isAvailable = seatIndex >= totalSeats - 8;
+      // Mark seats as booked from the beginning, leaving only the required available seats at the end
+      const isBooked = seatIndex < bookedSeats;
       
       seats.push({
         id: `${flightId}-${row}${seatLetters[i]}`,
         seatNumber: seatNumber,
         class: ticketClass,
-        status: isAvailable ? SeatStatus.Available : SeatStatus.Booked
+        status: isBooked ? SeatStatus.Booked : SeatStatus.Available
       });
     }
   }
@@ -478,7 +477,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const initialSeats: Record<string, Seat[]> = {};
     initialFlights.forEach(flight => {
-      initialSeats[flight.id] = generateSeats(flight.id, flight.totalSeats);
+      initialSeats[flight.id] = generateSeats(flight.id, flight.totalSeats, flight.bookedSeats);
     });
     setSeats(initialSeats);
   }, []);
