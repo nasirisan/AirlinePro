@@ -22,6 +22,7 @@ import { ContactUs } from './components/ContactUs';
 import { Terms } from './components/Terms';
 import { Privacy } from './components/Privacy';
 import { RefundPolicy } from './components/RefundPolicy';
+import { Newsletter } from './components/Newsletter';
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/newsletter" element={<Newsletter />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />

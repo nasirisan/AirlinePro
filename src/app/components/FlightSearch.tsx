@@ -181,7 +181,10 @@ export const FlightSearch: React.FC = () => {
             >
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5 text-yellow-400" />}
             </button>
-            <button className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+            <button
+              onClick={() => navigate('/newsletter')}
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
               Join Newsletter
             </button>
             <button
