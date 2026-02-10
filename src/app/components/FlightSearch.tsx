@@ -9,15 +9,26 @@ import { motion } from 'motion/react';
 export const FlightSearch: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { searchFlights, setCurrentPassenger, theme, toggleTheme } = useBooking();
+  const { searchFlights, getAvailableDates, setCurrentPassenger, theme, toggleTheme } = useBooking();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [date, setDate] = useState('2026-02-15');
   const [passengers, setPassengers] = useState(1);
   const [searchResults, setSearchResults] = useState<Flight[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Update available dates when from/to changes
+  React.useEffect(() => {
+    const dates = getAvailableDates(from, to);
+    setAvailableDates(dates);
+    // If current date is not in available dates, set to first available date
+    if (dates.length > 0 && !dates.includes(date)) {
+      setDate(dates[0]);
+    }
+  }, [from, to, getAvailableDates, date]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,6 +243,29 @@ export const FlightSearch: React.FC = () => {
                     className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                   />
                 </div>
+                {from && to && availableDates.length > 0 && (
+                  <div className={`mt-3 p-3 rounded-lg text-sm ${theme === 'dark' ? 'bg-gray-700 text-gray-200' : 'bg-blue-50 text-blue-700'}`}>
+                    <div className="font-semibold mb-2">Available dates:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {availableDates.map(d => (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => setDate(d)}
+                          className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                            date === d
+                              ? 'bg-blue-600 text-white'
+                              : theme === 'dark'
+                              ? 'bg-gray-600 text-gray-100 hover:bg-gray-500'
+                              : 'bg-white text-blue-600 border border-blue-300 hover:bg-blue-100'
+                          }`}
+                        >
+                          {new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>

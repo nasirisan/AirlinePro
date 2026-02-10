@@ -25,6 +25,7 @@ interface BookingContextType {
   currentPassenger: Passenger | null;
   currentReservation: Reservation | null;
   searchFlights: (from: string, to: string, date: string) => Flight[];
+  getAvailableDates: (from: string, to: string) => string[];
   selectSeat: (flightId: string, seatId: string, passenger: Passenger) => Reservation | null;
   processPayment: (reservationId: string, success: boolean) => Booking | null;
   joinWaitingList: (flightId: string, passenger: Passenger, ticketClass: TicketClass) => WaitingListEntry | null;
@@ -208,6 +209,190 @@ const initialFlights: Flight[] = [
     bookedSeats: 133,
     price: { economy: 349, business: 899, firstClass: 1499 },
     status: FlightStatus.SeatsAvailable
+  },
+  // Feb 18 flights
+  {
+    id: 'FL012',
+    flightNumber: 'AA 1235',
+    from: 'New York (JFK)',
+    to: 'Los Angeles (LAX)',
+    date: '2026-02-18',
+    departureTime: '09:15',
+    arrivalTime: '12:45',
+    totalSeats: 180,
+    availableSeats: 52,
+    reservedSeats: 0,
+    bookedSeats: 128,
+    price: { economy: 299, business: 899, firstClass: 1499 },
+    status: FlightStatus.SeatsAvailable
+  },
+  {
+    id: 'FL013',
+    flightNumber: 'UA 5679',
+    from: 'San Francisco (SFO)',
+    to: 'Miami (MIA)',
+    date: '2026-02-18',
+    departureTime: '15:30',
+    arrivalTime: '23:45',
+    totalSeats: 200,
+    availableSeats: 15,
+    reservedSeats: 0,
+    bookedSeats: 185,
+    price: { economy: 349, business: 999, firstClass: 1699 },
+    status: FlightStatus.LimitedSeats
+  },
+  {
+    id: 'FL014',
+    flightNumber: 'NAS 2008',
+    from: 'Accra (ACC)',
+    to: 'Lagos (LOS)',
+    date: '2026-02-18',
+    departureTime: '07:00',
+    arrivalTime: '09:45',
+    totalSeats: 160,
+    availableSeats: 73,
+    reservedSeats: 0,
+    bookedSeats: 87,
+    price: { economy: 189, business: 489, firstClass: 899 },
+    status: FlightStatus.SeatsAvailable
+  },
+  // Feb 19 flights
+  {
+    id: 'FL015',
+    flightNumber: 'DL 9013',
+    from: 'Chicago (ORD)',
+    to: 'Seattle (SEA)',
+    date: '2026-02-19',
+    departureTime: '10:00',
+    arrivalTime: '12:30',
+    totalSeats: 150,
+    availableSeats: 38,
+    reservedSeats: 0,
+    bookedSeats: 112,
+    price: { economy: 279, business: 849, firstClass: 1399 },
+    status: FlightStatus.SeatsAvailable
+  },
+  {
+    id: 'FL016',
+    flightNumber: 'NAS 2009',
+    from: 'Accra (ACC)',
+    to: 'London (LHR)',
+    date: '2026-02-19',
+    departureTime: '23:15',
+    arrivalTime: '07:00',
+    totalSeats: 260,
+    availableSeats: 61,
+    reservedSeats: 0,
+    bookedSeats: 199,
+    price: { economy: 549, business: 1399, firstClass: 2299 },
+    status: FlightStatus.LimitedSeats
+  },
+  {
+    id: 'FL017',
+    flightNumber: 'NAS 2010',
+    from: 'Lagos (LOS)',
+    to: 'Accra (ACC)',
+    date: '2026-02-19',
+    departureTime: '10:00',
+    arrivalTime: '11:45',
+    totalSeats: 160,
+    availableSeats: 38,
+    reservedSeats: 0,
+    bookedSeats: 122,
+    price: { economy: 189, business: 489, firstClass: 899 },
+    status: FlightStatus.SeatsAvailable
+  },
+  // Feb 20 flights
+  {
+    id: 'FL018',
+    flightNumber: 'SW 3457',
+    from: 'Boston (BOS)',
+    to: 'Denver (DEN)',
+    date: '2026-02-20',
+    departureTime: '12:00',
+    arrivalTime: '15:30',
+    totalSeats: 175,
+    availableSeats: 91,
+    reservedSeats: 0,
+    bookedSeats: 84,
+    price: { economy: 259, business: 779, firstClass: 1299 },
+    status: FlightStatus.SeatsAvailable
+  },
+  {
+    id: 'FL019',
+    flightNumber: 'NAS 2011',
+    from: 'Accra (ACC)',
+    to: 'New York (JFK)',
+    date: '2026-02-20',
+    departureTime: '21:30',
+    arrivalTime: '08:00',
+    totalSeats: 280,
+    availableSeats: 71,
+    reservedSeats: 0,
+    bookedSeats: 209,
+    price: { economy: 649, business: 1699, firstClass: 2799 },
+    status: FlightStatus.LimitedSeats
+  },
+  {
+    id: 'FL020',
+    flightNumber: 'NAS 2012',
+    from: 'Accra (ACC)',
+    to: 'Paris (CDG)',
+    date: '2026-02-20',
+    departureTime: '22:30',
+    arrivalTime: '07:30',
+    totalSeats: 220,
+    availableSeats: 104,
+    reservedSeats: 0,
+    bookedSeats: 116,
+    price: { economy: 499, business: 1299, firstClass: 2099 },
+    status: FlightStatus.SeatsAvailable
+  },
+  // Feb 21 flights
+  {
+    id: 'FL021',
+    flightNumber: 'AA 1236',
+    from: 'New York (JFK)',
+    to: 'Los Angeles (LAX)',
+    date: '2026-02-21',
+    departureTime: '07:45',
+    arrivalTime: '11:15',
+    totalSeats: 180,
+    availableSeats: 68,
+    reservedSeats: 0,
+    bookedSeats: 112,
+    price: { economy: 299, business: 899, firstClass: 1499 },
+    status: FlightStatus.SeatsAvailable
+  },
+  {
+    id: 'FL022',
+    flightNumber: 'NAS 2013',
+    from: 'Accra (ACC)',
+    to: 'Dubai (DXB)',
+    date: '2026-02-21',
+    departureTime: '15:00',
+    arrivalTime: '23:30',
+    totalSeats: 240,
+    availableSeats: 24,
+    reservedSeats: 0,
+    bookedSeats: 216,
+    price: { economy: 399, business: 1099, firstClass: 1799 },
+    status: FlightStatus.LimitedSeats
+  },
+  {
+    id: 'FL023',
+    flightNumber: 'NAS 2014',
+    from: 'Accra (ACC)',
+    to: 'Johannesburg (JNB)',
+    date: '2026-02-21',
+    departureTime: '11:00',
+    arrivalTime: '18:00',
+    totalSeats: 200,
+    availableSeats: 85,
+    reservedSeats: 0,
+    bookedSeats: 115,
+    price: { economy: 349, business: 899, firstClass: 1499 },
+    status: FlightStatus.SeatsAvailable
   }
 ];
 
@@ -380,6 +565,18 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const matchDate = !date || flight.date === date;
       return matchFrom && matchTo && matchDate;
     });
+  }, [flights]);
+
+  const getAvailableDates = useCallback((from: string, to: string): string[] => {
+    const matchingFlights = flights.filter(flight => {
+      const matchFrom = !from || flight.from.toLowerCase().includes(from.toLowerCase());
+      const matchTo = !to || flight.to.toLowerCase().includes(to.toLowerCase());
+      return matchFrom && matchTo;
+    });
+    
+    // Get unique dates and sort them
+    const dates = Array.from(new Set(matchingFlights.map(f => f.date))).sort();
+    return dates;
   }, [flights]);
 
   const selectSeat = useCallback((flightId: string, seatId: string, passenger: Passenger): Reservation | null => {
@@ -625,6 +822,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     currentPassenger,
     currentReservation,
     searchFlights,
+    getAvailableDates,
     selectSeat,
     processPayment,
     joinWaitingList,
