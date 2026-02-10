@@ -17,6 +17,11 @@ export const FlightSearch: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Flight[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [showPassengerForm, setShowPassengerForm] = useState(false);
+  const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+  const [passengerName, setPassengerName] = useState('');
+  const [passengerEmail, setPassengerEmail] = useState('');
+  const [passengerType, setPassengerType] = useState<PassengerType>(PassengerType.Normal);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -38,18 +43,34 @@ export const FlightSearch: React.FC = () => {
   };
 
   const handleSelectFlight = (flight: Flight) => {
-    // Create a mock passenger for demo
-    const mockPassenger = {
+    setSelectedFlight(flight);
+    setShowPassengerForm(true);
+  };
+
+  const handlePassengerFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!selectedFlight) return;
+    
+    const passenger = {
       id: `PASS-${Date.now()}`,
-      name: 'John Doe',
-      email: 'john.doe@email.com',
+      name: passengerName,
+      email: passengerEmail,
       phone: '+1 (555) 123-4567',
-      type: PassengerType.Normal,
-      loyaltyPoints: 0
+      type: passengerType,
+      loyaltyPoints: passengerType === PassengerType.FrequentFlyer ? 1000 : 0
     };
     
-    setCurrentPassenger(mockPassenger);
-    navigate(`/flight/${flight.id}/seats`);
+    setCurrentPassenger(passenger);
+    navigate(`/flight/${selectedFlight.id}/seats`);
+  };
+
+  const handleClosePassengerForm = () => {
+    setShowPassengerForm(false);
+    setSelectedFlight(null);
+    setPassengerName('');
+    setPassengerEmail('');
+    setPassengerType(PassengerType.Normal);
   };
 
   const popularRoutes = [
@@ -605,6 +626,85 @@ export const FlightSearch: React.FC = () => {
           </div>
         </footer>
       </div>
+
+      {/* Passenger Form Modal */}
+      {showPassengerForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl max-w-md w-full p-8`}
+          >
+            <h2 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+              Passenger Details
+            </h2>
+
+            <form onSubmit={handlePassengerFormSubmit} className="space-y-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  value={passengerName}
+                  onChange={(e) => setPassengerName(e.target.value)}
+                  placeholder="Enter your full name"
+                  required
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                />
+              </div>
+
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={passengerEmail}
+                  onChange={(e) => setPassengerEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                />
+              </div>
+
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Passenger Type *
+                </label>
+                <select
+                  value={passengerType}
+                  onChange={(e) => setPassengerType(e.target.value as PassengerType)}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                >
+                  <option value={PassengerType.Normal}>Regular Passenger</option>
+                  <option value={PassengerType.FrequentFlyer}>Frequent Flyer (Higher Priority)</option>
+                  <option value={PassengerType.VIP}>VIP (Highest Priority)</option>
+                </select>
+                <p className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Passenger type affects waiting list priority. VIP customers are prioritized first.
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Continue to Seats
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClosePassengerForm}
+                  className={`flex-1 py-2 rounded-lg font-medium border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'} transition-colors`}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
