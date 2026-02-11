@@ -1411,7 +1411,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
           };
         }
         
-        return { ...prev, [reservation.flightId]: updatedSeats };
+        const newSeatsState = { ...prev, [reservation.flightId]: updatedSeats };
+        saveToStorage('nas-seats', newSeatsState);
+        return newSeatsState;
       });
       
       /**
@@ -1420,35 +1422,47 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
        * ═════════════════════════════════════════════════════════════════
        * Move the seat from "reserved" to "booked" category
        */
-      setFlights(prev => prev.map(f => {
-        if (f.id === reservation.flightId) {
-          const newReserved = Math.max(0, f.reservedSeats - 1);  // Decrease reserved by 1
-          const newBooked = f.bookedSeats + 1;                    // Increase booked by 1
-          
-          const updatedFlight = {
-            ...f,
-            availableSeats: f.availableSeats,   // No change (already decreased during selectSeat)
-            reservedSeats: newReserved,
-            bookedSeats: newBooked
-          };
-          
-          // Recalculate flight status based on available seats
-          updatedFlight.status = updatedFlight.availableSeats > 10 ? FlightStatus.SeatsAvailable :
-                    updatedFlight.availableSeats > 0 ? FlightStatus.LimitedSeats :
-                    FlightStatus.FullyBooked;
-          
-          return updatedFlight;
-        }
-        return f;
-      }));
+      setFlights(prev => {
+        const updated = prev.map(f => {
+          if (f.id === reservation.flightId) {
+            const newReserved = Math.max(0, f.reservedSeats - 1);  // Decrease reserved by 1
+            const newBooked = f.bookedSeats + 1;                    // Increase booked by 1
+            
+            const updatedFlight = {
+              ...f,
+              availableSeats: f.availableSeats,   // No change (already decreased during selectSeat)
+              reservedSeats: newReserved,
+              bookedSeats: newBooked
+            };
+            
+            // Recalculate flight status based on available seats
+            updatedFlight.status = updatedFlight.availableSeats > 10 ? FlightStatus.SeatsAvailable :
+                      updatedFlight.availableSeats > 0 ? FlightStatus.LimitedSeats :
+                      FlightStatus.FullyBooked;
+            
+            return updatedFlight;
+          }
+          return f;
+        });
+        saveToStorage('nas-flights', updated);
+        return updated;
+      });
       
       /**
        * ═════════════════════════════════════════════════════════════════
        * SAVE THE BOOKING AND REMOVE THE RESERVATION
        * ═════════════════════════════════════════════════════════════════
        */
-      setBookings(prev => [...prev, booking]);                           // Add to confirmed bookings
-      setReservations(prev => prev.filter(r => r.id !== reservationId)); // Remove from reservations
+      setBookings(prev => {
+        const updated = [...prev, booking];
+        saveToStorage('nas-bookings', updated);
+        return updated;
+      });
+      setReservations(prev => {
+        const updated = prev.filter(r => r.id !== reservationId);
+        saveToStorage('nas-reservations', updated);
+        return updated;
+      });
       setCurrentReservation(null);                                       // Clear current reservation
       
       /**
@@ -1495,7 +1509,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
           };
         }
         
-        return { ...prev, [reservation.flightId]: updatedSeats };
+        const newSeatsState = { ...prev, [reservation.flightId]: updatedSeats };
+        saveToStorage('nas-seats', newSeatsState);
+        return newSeatsState;
       });
       
       /**
@@ -1503,28 +1519,36 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
        * UPDATE FLIGHT COUNTERS - Add back to available
        * ─────────────────────────────────────────────────────────────────
        */
-      setFlights(prev => prev.map(f => {
-        if (f.id === reservation.flightId) {
-          const newAvailable = f.availableSeats + 1;  // Increase available by 1
-          
-          return {
-            ...f,
-            availableSeats: newAvailable,
-            reservedSeats: Math.max(0, f.reservedSeats - 1),  // Decrease reserved by 1
-            status: newAvailable > 10 ? FlightStatus.SeatsAvailable :
-                    newAvailable > 0 ? FlightStatus.LimitedSeats :
-                    FlightStatus.FullyBooked
-          };
-        }
-        return f;
-      }));
+      setFlights(prev => {
+        const updated = prev.map(f => {
+          if (f.id === reservation.flightId) {
+            const newAvailable = f.availableSeats + 1;  // Increase available by 1
+            
+            return {
+              ...f,
+              availableSeats: newAvailable,
+              reservedSeats: Math.max(0, f.reservedSeats - 1),  // Decrease reserved by 1
+              status: newAvailable > 10 ? FlightStatus.SeatsAvailable :
+                      newAvailable > 0 ? FlightStatus.LimitedSeats :
+                      FlightStatus.FullyBooked
+            };
+          }
+          return f;
+        });
+        saveToStorage('nas-flights', updated);
+        return updated;
+      });
       
       /**
        * ─────────────────────────────────────────────────────────────────
        * REMOVE THE RESERVATION
        * ─────────────────────────────────────────────────────────────────
        */
-      setReservations(prev => prev.filter(r => r.id !== reservationId));
+      setReservations(prev => {
+        const updated = prev.filter(r => r.id !== reservationId);
+        saveToStorage('nas-reservations', updated);
+        return updated;
+      });
       setCurrentReservation(null);
       
       /**
@@ -1704,7 +1728,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     
     // Create a reservation for the waiting list passenger (same flow as regular booking)
     const reservation: Reservation = {
-      id: `RES-WL-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `RES-WL-${now}-${Math.random().toString(36).substr(2, 9)}`,
       flightId,
       flight,
       passengerId: entry.passenger.id,
@@ -1712,8 +1736,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       seatId: freeSeat.id,
       seat: freeSeat,
       ticketClass: entry.ticketClass,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + 10 * 60 * 1000 // 10 minute timeout
+      reservedAt: now,
+      expiresAt: now + RESERVATION_TIME,
+      status: BookingStatus.Reserved
     };
 
     // Update seat to reserved and save immediately
@@ -1724,7 +1749,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updatedSeats[seatIndex] = {
           ...updatedSeats[seatIndex],
           status: SeatStatus.Reserved,
-          reservedBy: entry.passenger.id
+          reservedBy: entry.passenger.id,
+          reservedUntil: now + RESERVATION_TIME
         };
       }
       const newSeatsState = { ...prev, [flightId]: updatedSeats };
