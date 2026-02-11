@@ -378,44 +378,6 @@ export const WaitingList: React.FC = () => {
             </div>
 
             {/* ═══════════════════════════════════════════════════════════════
-                 POSITION CARD - Shows user's position in the queue
-                 Blue gradient background with large number
-                ═══════════════════════════════════════════════════════════════ */}
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 mb-6">
-              <p className="text-sm opacity-90 mb-1">Your Position</p>
-              {/* Large number showing queue position */}
-              <p className="text-5xl font-bold mb-2">#{position}</p>
-              {/* Show which queue type the user is in */}
-              <p className="text-sm opacity-90">
-                {/* If VIP passenger */}
-                {currentPassenger.type === PassengerType.VIP ? (
-                  <span className="flex items-center gap-2">
-                    <Star className="w-4 h-4" />
-                    VIP - Priority Queue
-                  </span>
-                ) : 
-                /* If Frequent Flyer passenger */
-                currentPassenger.type === PassengerType.FrequentFlyer ? (
-                  <span className="flex items-center gap-2">
-                    <Award className="w-4 h-4" />
-                    Frequent Flyer - Priority Queue
-                  </span>
-                ) : 
-                /* If Business or First Class (not Economy) */
-                selectedClass !== TicketClass.Economy ? (
-                  <span className="flex items-center gap-2">
-                    <Star className="w-4 h-4" />
-                    {selectedClass} - Priority Queue
-                  </span>
-                ) : 
-                /* Otherwise, normal Economy queue */
-                (
-                  'Economy - Normal Queue'
-                )}
-              </p>
-            </div>
-
-            {/* ═══════════════════════════════════════════════════════════════
                  INFORMATION CARDS - What happens next and estimated time
                 ═══════════════════════════════════════════════════════════════ */}
             <div className="space-y-4 mb-6">
@@ -439,24 +401,14 @@ export const WaitingList: React.FC = () => {
             </div>
 
             {/* ═══════════════════════════════════════════════════════════════
-                 ACTION BUTTONS - Return home or view queue status
+                 ACTION BUTTON - Return home
                 ═══════════════════════════════════════════════════════════════ */}
-            <div className="flex gap-4">
-              {/* Button 1: Return Home - Gray button */}
-              <button
-                onClick={() => navigate('/')}   // Go back to the home/search page
-                className="flex-1 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg font-medium transition-colors"
-              >
-                Return Home
-              </button>
-              {/* Button 2: View Queue Status - Blue button */}
-              <button
-                onClick={() => navigate(`/flight/${flightId}/waiting-list/status`)}  // Go to queue monitoring page
-                className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-              >
-                View Queue Status
-              </button>
-            </div>
+            <button
+              onClick={() => navigate('/')}
+              className="w-full py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white rounded-lg font-medium transition-colors"
+            >
+              Return Home
+            </button>
           </motion.div>
         )}
       </div>
