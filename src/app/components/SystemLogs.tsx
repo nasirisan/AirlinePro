@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
-import { ArrowLeft, Activity, Filter, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Activity, RotateCcw } from 'lucide-react';
 
 export const SystemLogs: React.FC = () => {
   const navigate = useNavigate();
@@ -108,15 +108,9 @@ export const SystemLogs: React.FC = () => {
         {/* Logs */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Activity Log ({systemLogs.length})
-              </h2>
-              <button className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-gray-700 rounded-lg transition-colors">
-                <Filter className="w-4 h-4" />
-                Filter
-              </button>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              Activity Log ({systemLogs.length})
+            </h2>
           </div>
 
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
