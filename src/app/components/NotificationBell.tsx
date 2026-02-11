@@ -1,8 +1,10 @@
 import React, { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
 import { Bell, Clock, X, CheckCircle } from 'lucide-react';
 
 export const NotificationBell: React.FC = () => {
+  const navigate = useNavigate();
   const { getPendingNotificationsForCurrentPassenger, getFlightById, confirmWaitingListBooking, currentPassenger, theme } = useBooking();
   const [showModal, setShowModal] = useState(false);
   
@@ -11,14 +13,22 @@ export const NotificationBell: React.FC = () => {
 
   const handleAcceptOffer = useCallback((entryId: string, flightId: string) => {
     try {
-      const result = confirmWaitingListBooking(entryId, flightId);
-      if (result && unreadCount <= 1) {
+      console.log('Accepting offer:', { entryId, flightId });
+      const reservation = confirmWaitingListBooking(entryId, flightId);
+      console.log('Reservation created:', reservation);
+      if (reservation) {
+        // Navigate to payment with the new reservation
+        navigate(`/reservation/${reservation.id}/payment`);
         setShowModal(false);
+      } else {
+        console.error('Failed to create reservation - no available seats or notification expired');
+        alert('Failed to accept offer. The seat may no longer be available or your offer has expired.');
       }
     } catch (error) {
       console.error('Error accepting offer:', error);
+      alert('An error occurred while accepting the offer.');
     }
-  }, [confirmWaitingListBooking, unreadCount]);
+  }, [confirmWaitingListBooking, navigate]);
 
   const getTimeRemaining = useCallback((expiresAt: number | undefined): string => {
     if (!expiresAt) return 'Time unknown';

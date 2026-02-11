@@ -39,14 +39,17 @@ export const Payment: React.FC = () => {
     // 90% success rate for demo purposes
     const success = Math.random() > 0.1;
     
+    console.log('Processing payment for reservation:', reservation.id, 'Success:', success);
     const booking = processPayment(reservation.id, success);
 
     if (booking) {
+      console.log('Booking confirmed:', booking.id);
       setPaymentStatus('success');
       setTimeout(() => {
         navigate(`/booking/${booking.id}/confirmation`);
       }, 2000);
     } else {
+      console.log('Payment processing failed - booking is null');
       setPaymentStatus('failed');
       setProcessing(false);
       setTimeout(() => {

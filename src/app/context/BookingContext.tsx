@@ -451,6 +451,25 @@ const saveToStorage = <T,>(key: string, value: T): void => {
   }
 };
 
+// sessionStorage helper functions (tab-specific storage)
+const loadFromSession = <T,>(key: string, defaultValue: T): T => {
+  try {
+    const item = sessionStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (error) {
+    console.warn(`Failed to load ${key} from sessionStorage:`, error);
+    return defaultValue;
+  }
+};
+
+const saveToSession = <T,>(key: string, value: T): void => {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Failed to save ${key} to sessionStorage:`, error);
+  }
+};
+
 // IDs of fully booked flights that should always load from static initial data
 // Only the 5 fully booked flights reset — the 1-seat-left flights (FL006-FL010) persist user changes
 const STATIC_FLIGHT_IDS = ['FL001', 'FL002', 'FL003', 'FL004', 'FL005'];
@@ -477,7 +496,9 @@ const loadFlightsFromStorage = (): Flight[] => {
 
 export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [flights, setFlights] = useState<Flight[]>(() => loadFlightsFromStorage());
-  const [seats, setSeats] = useState<Record<string, Seat[]>>({});
+  const [seats, setSeats] = useState<Record<string, Seat[]>>(() =>
+    loadFromStorage('nas-seats', {})
+  );
   const [reservations, setReservations] = useState<Reservation[]>(() =>
     loadFromStorage('nas-reservations', [])
   );
@@ -491,18 +512,22 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     loadFromStorage('nas-system-logs', [])
   );
   const [currentPassenger, setCurrentPassenger] = useState<Passenger | null>(() =>
-    loadFromStorage<Passenger | null>('nas-current-passenger', null)
+    loadFromSession<Passenger | null>('nas-current-passenger', null)
   );
   const [currentReservation, setCurrentReservation] = useState<Reservation | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-  // Initialize seats for all flights
+  // Initialize seats for all flights (only if not already loaded from storage)
   useEffect(() => {
-    const initialSeats: Record<string, Seat[]> = {};
-    initialFlights.forEach(flight => {
-      initialSeats[flight.id] = generateSeats(flight.id, flight.totalSeats, flight.bookedSeats);
-    });
-    setSeats(initialSeats);
+    const hasSeats = Object.keys(seats).length > 0;
+    if (!hasSeats) {
+      const initialSeats: Record<string, Seat[]> = {};
+      initialFlights.forEach(flight => {
+        initialSeats[flight.id] = generateSeats(flight.id, flight.totalSeats, flight.bookedSeats);
+      });
+      setSeats(initialSeats);
+      saveToStorage('nas-seats', initialSeats);
+    }
   }, []);
 
   useEffect(() => {
@@ -511,9 +536,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [flights.length]);
 
-  // Save current passenger to localStorage
+  // Save current passenger to sessionStorage (tab-specific)
   useEffect(() => {
-    saveToStorage('nas-current-passenger', currentPassenger);
+    saveToSession('nas-current-passenger', currentPassenger);
   }, [currentPassenger]);
   // Save flights to localStorage
   useEffect(() => {
@@ -560,10 +585,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       } else if (e.key === 'nas-system-logs') {
         const newLogs = loadFromStorage<SystemLog[]>('nas-system-logs', []);
         setSystemLogs(newLogs);
-      } else if (e.key === 'nas-current-passenger') {
-        const newPassenger = loadFromStorage<Passenger | null>('nas-current-passenger', null);
-        setCurrentPassenger(newPassenger);
       }
+      // Note: DO NOT sync currentPassenger across tabs - each tab should have independent passenger
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -646,14 +669,27 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Define processWaitingList here BEFORE using it in useEffect
   const processWaitingList = useCallback((flightId: string, seatsJustFreed: number = 1) => {
     const waitingList = waitingLists[flightId] || [];
-    if (waitingList.length === 0 || seatsJustFreed <= 0) return;
+    console.log('processWaitingList called:', { flightId, seatsJustFreed, waitingListLength: waitingList.length });
+    
+    if (waitingList.length === 0 || seatsJustFreed <= 0) {
+      console.log('No one to notify - waiting list empty or no seats freed');
+      return;
+    }
     
     const flight = flights.find(f => f.id === flightId);
-    if (!flight) return;
+    if (!flight) {
+      console.log('Flight not found');
+      return;
+    }
     
     // Find the first person who hasn't been notified yet
     const unnotifiedEntries = waitingList.filter(entry => !entry.notified);
-    if (unnotifiedEntries.length === 0) return; // Everyone is already notified or waiting
+    console.log('Unnotified entries:', unnotifiedEntries.length);
+    
+    if (unnotifiedEntries.length === 0) {
+      console.log('Everyone is already notified');
+      return; // Everyone is already notified or waiting
+    }
     
     // Sort by priority (First Class > Business > Economy) then by join time
     const priorityQueue = new PriorityQueue<WaitingListEntry>();
@@ -671,6 +707,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     
     // Notify the first person in queue (not auto-book)
     const nextEntry = priorityQueue.dequeue();
+    console.log('Next entry to notify:', nextEntry?.passenger.name);
+    
     if (nextEntry) {
       const notifiedAt = Date.now();
       const notificationExpiresAt = notifiedAt + NOTIFICATION_TIME; // 5 minutes
@@ -691,6 +729,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         flightId,
         nextEntry.passenger.id
       );
+      
+      console.log('Successfully notified:', nextEntry.passenger.name);
     }
   }, [waitingLists, flights, addSystemLog]);
 
@@ -836,11 +876,19 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const processPayment = useCallback((reservationId: string, success: boolean): Booking | null => {
     const reservation = reservations.find(r => r.id === reservationId);
-    if (!reservation) return null;
+    console.log('processPayment called:', { reservationId, success, reservation, allReservations: reservations });
+    
+    if (!reservation) {
+      console.error('Reservation not found for payment!');
+      return null;
+    }
     
     if (success) {
       const flight = flights.find(f => f.id === reservation.flightId);
-      if (!flight) return null;
+      if (!flight) {
+        console.error('Flight not found for reservation!');
+        return null;
+      }
       
       const booking: Booking = {
         id: `BKG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -904,9 +952,11 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         reservation.passengerId
       );
       
+      console.log('Payment successful! Booking created:', booking.id);
       return booking;
     } else {
       // Payment failed - release seat
+      console.log('Payment FAILED! Releasing seat and notifying next person...');
       setSeats(prev => {
         const updatedSeats = [...(prev[reservation.flightId] || [])];
         const seatIndex = updatedSeats.findIndex(s => s.id === reservation.seatId);
@@ -1004,98 +1054,128 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return true;
   }, [bookings, addSystemLog, processWaitingList]);
 
-  const confirmWaitingListBooking = useCallback((entryId: string, flightId: string): Booking | null => {
+  const confirmWaitingListBooking = useCallback((entryId: string, flightId: string): Reservation | null => {
     const waitingList = waitingLists[flightId] || [];
     const entry = waitingList.find(e => e.id === entryId);
     
-    if (!entry || !entry.notified) return null; // Only notified entries can be confirmed
+    console.log('confirmWaitingListBooking called:', { entryId, flightId, entry });
+    
+    if (!entry || !entry.notified) {
+      console.log('Entry not found or not notified');
+      return null; // Only notified entries can be confirmed
+    }
     
     const flight = flights.find(f => f.id === flightId);
-    if (!flight) return null;
+    if (!flight) {
+      console.log('Flight not found');
+      return null;
+    }
     
     // Check if notification has expired
     const now = Date.now();
     if (entry.notificationExpiresAt && entry.notificationExpiresAt <= now) {
+      console.log('Notification expired');
       return null; // Notification expired
     }
     
     // Find an available seat
     const availableSeats = seats[flightId] || [];
+    console.log('Available seats for flight:', availableSeats.filter(s => s.status === SeatStatus.Available).length);
     const freeSeat = availableSeats.find(s => s.status === SeatStatus.Available);
     
-    if (!freeSeat) return null; // No available seats
+    if (!freeSeat) {
+      console.log('No free seats found');
+      return null; // No available seats
+    }
     
-    // Update seat to booked
-    setSeats(prev => {
-      const updatedSeats = [...(prev[flightId] || [])];
-      const seatIndex = updatedSeats.findIndex(s => s.id === freeSeat.id);
-      if (seatIndex !== -1) {
-        updatedSeats[seatIndex] = {
-          ...updatedSeats[seatIndex],
-          status: SeatStatus.Booked,
-          reservedBy: entry.passenger.id
-        };
-      }
-      return { ...prev, [flightId]: updatedSeats };
-    });
-
-    // Update flight counts
-    setFlights(prev => prev.map(f => {
-      if (f.id === flightId) {
-        const newAvailable = Math.max(0, f.availableSeats - 1);
-        const newBooked = f.bookedSeats + 1;
-        return {
-          ...f,
-          availableSeats: newAvailable,
-          bookedSeats: newBooked,
-          status: newAvailable > 10 ? FlightStatus.SeatsAvailable :
-                  newAvailable > 0 ? FlightStatus.LimitedSeats :
-                  FlightStatus.FullyBooked
-        };
-      }
-      return f;
-    }));
-
-    // Create booking for the waiting list passenger
-    const booking: Booking = {
-      id: `BKG-WL-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      bookingReference: `WL-${flight.flightNumber.replace(' ', '')}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
-      flightId: flightId,
+    console.log('Creating reservation with seat:', freeSeat.seatNumber);
+    
+    // Create a reservation for the waiting list passenger (same flow as regular booking)
+    const reservation: Reservation = {
+      id: `RES-WL-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      flightId,
       flight,
       passengerId: entry.passenger.id,
       passenger: entry.passenger,
       seatId: freeSeat.id,
       seat: freeSeat,
       ticketClass: entry.ticketClass,
-      price: flight.price[entry.ticketClass === TicketClass.First ? 'firstClass' : 
-                         entry.ticketClass === TicketClass.Business ? 'business' : 'economy'],
-      bookedAt: Date.now(),
-      status: BookingStatus.Confirmed
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 10 * 60 * 1000 // 10 minute timeout
     };
 
-    setBookings(prev => [...prev, booking]);
+    // Update seat to reserved and save immediately
+    setSeats(prev => {
+      const updatedSeats = [...(prev[flightId] || [])];
+      const seatIndex = updatedSeats.findIndex(s => s.id === freeSeat.id);
+      if (seatIndex !== -1) {
+        updatedSeats[seatIndex] = {
+          ...updatedSeats[seatIndex],
+          status: SeatStatus.Reserved,
+          reservedBy: entry.passenger.id
+        };
+      }
+      const newSeatsState = { ...prev, [flightId]: updatedSeats };
+      // Save immediately to localStorage
+      saveToStorage('nas-seats', newSeatsState);
+      return newSeatsState;
+    });
 
-    // Remove from waiting list
+    // Update flight counts (reserved instead of booked) and save immediately
+    setFlights(prev => {
+      const updated = prev.map(f => {
+        if (f.id === flightId) {
+          const newAvailable = Math.max(0, f.availableSeats - 1);
+          const newReserved = f.reservedSeats + 1;
+          return {
+            ...f,
+            availableSeats: newAvailable,
+            reservedSeats: newReserved,
+            status: newAvailable > 10 ? FlightStatus.SeatsAvailable :
+                    newAvailable > 0 ? FlightStatus.LimitedSeats :
+                    FlightStatus.FullyBooked
+          };
+        }
+        return f;
+      });
+      // Save immediately to localStorage
+      saveToStorage('nas-flights', updated);
+      return updated;
+    });
+
+    // Add reservation and save to localStorage IMMEDIATELY (before navigation)
+    setReservations(prev => {
+      const updated = [...prev, reservation];
+      console.log('Reservation added to state:', reservation.id, 'Total reservations:', updated.length);
+      // Save to localStorage synchronously to ensure it's there when Payment page loads
+      saveToStorage('nas-reservations', updated);
+      return updated;
+    });
+
+    // Remove from waiting list and save immediately
     setWaitingLists(prev => {
       const remaining = (prev[flightId] || []).filter(e => e.id !== entryId);
       const reindexed = remaining.map((e, index) => ({
         ...e,
         position: index + 1
       }));
-      return { ...prev, [flightId]: reindexed };
+      console.log('Removed from waiting list. Remaining:', reindexed.length);
+      const updated = { ...prev, [flightId]: reindexed };
+      // Save immediately to localStorage
+      saveToStorage('nas-waiting-lists', updated);
+      return updated;
     });
 
     addSystemLog(
-      'Waiting list booking confirmed',
-      `${entry.passenger.name} confirmed booking for seat ${freeSeat.seatNumber} from waiting list`,
+      'Waiting list booking accepted - reservation created',
+      `${entry.passenger.name} accepted offer for seat ${freeSeat.seatNumber}, now in payment`,
       flightId,
       entry.passenger.id
     );
 
-    // Offer next seat to the next person in waiting list
-    processWaitingList(flightId, 1);
-
-    return booking;
+    console.log('Returning reservation:', reservation);
+    // Return the reservation so NotificationBell can navigate to payment
+    return reservation;
   }, [waitingLists, flights, seats, addSystemLog, processWaitingList]);
 
   const joinWaitingList = useCallback((flightId: string, passenger: Passenger, ticketClass: TicketClass): WaitingListEntry | null => {
