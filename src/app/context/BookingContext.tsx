@@ -449,8 +449,9 @@ const saveToStorage = <T,>(key: string, value: T): void => {
   }
 };
 
-// IDs of flights that should always load from static initial data
-const STATIC_FLIGHT_IDS = ['FL001', 'FL002', 'FL003', 'FL004', 'FL005', 'FL006', 'FL007', 'FL008', 'FL009', 'FL010'];
+// IDs of fully booked flights that should always load from static initial data
+// Only the 5 fully booked flights reset — the 1-seat-left flights (FL006-FL010) persist user changes
+const STATIC_FLIGHT_IDS = ['FL001', 'FL002', 'FL003', 'FL004', 'FL005'];
 
 const loadFlightsFromStorage = (): Flight[] => {
   const storedFlights = loadFromStorage<Flight[]>('nas-flights', initialFlights);
@@ -793,10 +794,15 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Update flight
       setFlights(prev => prev.map(f => {
         if (f.id === reservation.flightId) {
+          const newReserved = Math.max(0, f.reservedSeats - 1);
+          const newBooked = f.bookedSeats + 1;
           return {
             ...f,
-            reservedSeats: Math.max(0, f.reservedSeats - 1),
-            bookedSeats: f.bookedSeats + 1
+            reservedSeats: newReserved,
+            bookedSeats: newBooked,
+            status: f.availableSeats > 10 ? FlightStatus.SeatsAvailable :
+                    f.availableSeats > 0 ? FlightStatus.LimitedSeats :
+                    FlightStatus.FullyBooked
           };
         }
         return f;
