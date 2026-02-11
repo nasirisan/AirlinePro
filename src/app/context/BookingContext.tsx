@@ -30,9 +30,11 @@ interface BookingContextType {
   processPayment: (reservationId: string, success: boolean) => Booking | null;
   cancelBooking: (bookingId: string) => boolean;
   joinWaitingList: (flightId: string, passenger: Passenger, ticketClass: TicketClass) => WaitingListEntry | null;
+  confirmWaitingListBooking: (entryId: string, flightId: string) => Booking | null;
   getWaitingListPosition: (entryId: string, flightId: string) => number;
   getFlightById: (flightId: string) => Flight | undefined;
   getReservationById: (reservationId: string) => Reservation | undefined;
+  getPendingNotificationsForCurrentPassenger: () => Array<WaitingListEntry & { flightId: string }>;
   setCurrentPassenger: (passenger: Passenger | null) => void;
   clearCurrentReservation: () => void;
   theme: 'light' | 'dark';
@@ -488,7 +490,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [systemLogs, setSystemLogs] = useState<SystemLog[]>(() =>
     loadFromStorage('nas-system-logs', [])
   );
-  const [currentPassenger, setCurrentPassenger] = useState<Passenger | null>(null);
+  const [currentPassenger, setCurrentPassenger] = useState<Passenger | null>(() =>
+    loadFromStorage<Passenger | null>('nas-current-passenger', null)
+  );
   const [currentReservation, setCurrentReservation] = useState<Reservation | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
@@ -506,6 +510,11 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setFlights(initialFlights);
     }
   }, [flights.length]);
+
+  // Save current passenger to localStorage
+  useEffect(() => {
+    saveToStorage('nas-current-passenger', currentPassenger);
+  }, [currentPassenger]);
   // Save flights to localStorage
   useEffect(() => {
     saveToStorage('nas-flights', flights);
@@ -530,6 +539,37 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     saveToStorage('nas-system-logs', systemLogs);
   }, [systemLogs]);
+
+  // Listen for storage changes from other tabs and sync state
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (!e.key) return; // Ignore clear() calls
+      
+      if (e.key === 'nas-flights') {
+        const newFlights = loadFromStorage<Flight[]>('nas-flights', initialFlights);
+        setFlights(newFlights);
+      } else if (e.key === 'nas-reservations') {
+        const newReservations = loadFromStorage<Reservation[]>('nas-reservations', []);
+        setReservations(newReservations);
+      } else if (e.key === 'nas-bookings') {
+        const newBookings = loadFromStorage<Booking[]>('nas-bookings', []);
+        setBookings(newBookings);
+      } else if (e.key === 'nas-waiting-lists') {
+        const newWaitingLists = loadFromStorage<Record<string, WaitingListEntry[]>>('nas-waiting-lists', {});
+        setWaitingLists(newWaitingLists);
+      } else if (e.key === 'nas-system-logs') {
+        const newLogs = loadFromStorage<SystemLog[]>('nas-system-logs', []);
+        setSystemLogs(newLogs);
+      } else if (e.key === 'nas-current-passenger') {
+        const newPassenger = loadFromStorage<Passenger | null>('nas-current-passenger', null);
+        setCurrentPassenger(newPassenger);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const addSystemLog = useCallback((action: string, details: string, flightId?: string, passengerId?: string) => {
     const log: SystemLog = {
       id: `LOG-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -603,19 +643,21 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return () => clearInterval(interval);
   }, [addSystemLog]);
 
-  const processWaitingList = useCallback((flightId: string, seatsJustFreed: number = 0) => {
+  // Define processWaitingList here BEFORE using it in useEffect
+  const processWaitingList = useCallback((flightId: string, seatsJustFreed: number = 1) => {
     const waitingList = waitingLists[flightId] || [];
-    if (waitingList.length === 0) return;
+    if (waitingList.length === 0 || seatsJustFreed <= 0) return;
     
     const flight = flights.find(f => f.id === flightId);
     if (!flight) return;
-    // Account for seats freed in the same tick (React state not yet updated)
-    const effectiveAvailable = flight.availableSeats + seatsJustFreed;
-    if (effectiveAvailable === 0) return;
     
-    // Sort by priority (First Class > Business > Economy) and then by join time
+    // Find the first person who hasn't been notified yet
+    const unnotifiedEntries = waitingList.filter(entry => !entry.notified);
+    if (unnotifiedEntries.length === 0) return; // Everyone is already notified or waiting
+    
+    // Sort by priority (First Class > Business > Economy) then by join time
     const priorityQueue = new PriorityQueue<WaitingListEntry>();
-    waitingList.forEach(entry => {
+    unnotifiedEntries.forEach(entry => {
       let priority = 0;
       if (entry.ticketClass === TicketClass.First) priority = 3;
       else if (entry.ticketClass === TicketClass.Business) priority = 2;
@@ -627,39 +669,79 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       priorityQueue.enqueue(entry, priority);
     });
     
-    // Notify the first person in queue
+    // Notify the first person in queue (not auto-book)
     const nextEntry = priorityQueue.dequeue();
     if (nextEntry) {
-      const notificationExpiresAt = Date.now() + NOTIFICATION_TIME;
+      const notifiedAt = Date.now();
+      const notificationExpiresAt = notifiedAt + NOTIFICATION_TIME; // 5 minutes
 
+      // Update the waiting list entry with notification info
       setWaitingLists(prev => {
-        const remaining = (prev[flightId] || []).filter(entry => entry.id !== nextEntry.id);
-        const reindexed = remaining.map((entry, index) => ({
-          ...entry,
-          position: index + 1
-        }));
-
-        return {
-          ...prev,
-          [flightId]: reindexed
-        };
+        const updated = (prev[flightId] || []).map(entry => 
+          entry.id === nextEntry.id 
+            ? { ...entry, notified: true, notifiedAt, notificationExpiresAt }
+            : entry
+        );
+        return { ...prev, [flightId]: updated };
       });
 
       addSystemLog(
-        'Waiting list dequeued',
-        `${nextEntry.passenger.name} removed from waiting list due to available seat`,
-        flightId,
-        nextEntry.passenger.id
-      );
-
-      addSystemLog(
-        'Passenger notified',
-        `${nextEntry.passenger.name} notified of available seat`,
+        'Waiting list notified',
+        `${nextEntry.passenger.name} notified of available seat. Must confirm within 5 minutes.`,
         flightId,
         nextEntry.passenger.id
       );
     }
   }, [waitingLists, flights, addSystemLog]);
+
+  // Check for expired waiting list notifications
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      let hasAnyExpired = false;
+      const expiredData: { flightId: string; entryId: string; passengerName: string }[] = [];
+      
+      setWaitingLists(prev => {
+        const updated = { ...prev };
+
+        Object.keys(updated).forEach(flightId => {
+          const expiredEntries = updated[flightId].filter(
+            entry => entry.notified && entry.notificationExpiresAt && entry.notificationExpiresAt <= now
+          );
+
+          expiredEntries.forEach(expiredEntry => {
+            hasAnyExpired = true;
+            expiredData.push({ flightId, entryId: expiredEntry.id, passengerName: expiredEntry.passenger.name });
+            
+            // Mark this person as not notified so they can be re-offered later
+            updated[flightId] = updated[flightId].map(entry =>
+              entry.id === expiredEntry.id
+                ? { ...entry, notified: false, notifiedAt: undefined, notificationExpiresAt: undefined }
+                : entry
+            );
+          });
+        });
+
+        return updated;
+      });
+
+      // Log the expirations after state update
+      expiredData.forEach(data => {
+        addSystemLog(
+          'Waiting list offer expired',
+          `Passenger's seat offer expired. Moving to next in queue.`,
+          data.flightId
+        );
+      });
+
+      // After expiration, trigger waiting list processing
+      expiredData.forEach(data => {
+        processWaitingList(data.flightId, 1);
+      });
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [addSystemLog, processWaitingList]);
 
   const searchFlights = useCallback((from: string, to: string, date: string): Flight[] => {
     return flights.filter(flight => {
@@ -796,14 +878,17 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (f.id === reservation.flightId) {
           const newReserved = Math.max(0, f.reservedSeats - 1);
           const newBooked = f.bookedSeats + 1;
-          return {
+          const updatedFlight = {
             ...f,
+            availableSeats: f.availableSeats, // Already decreased during selectSeat
             reservedSeats: newReserved,
-            bookedSeats: newBooked,
-            status: f.availableSeats > 10 ? FlightStatus.SeatsAvailable :
-                    f.availableSeats > 0 ? FlightStatus.LimitedSeats :
-                    FlightStatus.FullyBooked
+            bookedSeats: newBooked
           };
+          // Recalculate status based on current available seats
+          updatedFlight.status = updatedFlight.availableSeats > 10 ? FlightStatus.SeatsAvailable :
+                    updatedFlight.availableSeats > 0 ? FlightStatus.LimitedSeats :
+                    FlightStatus.FullyBooked;
+          return updatedFlight;
         }
         return f;
       }));
@@ -919,6 +1004,100 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return true;
   }, [bookings, addSystemLog, processWaitingList]);
 
+  const confirmWaitingListBooking = useCallback((entryId: string, flightId: string): Booking | null => {
+    const waitingList = waitingLists[flightId] || [];
+    const entry = waitingList.find(e => e.id === entryId);
+    
+    if (!entry || !entry.notified) return null; // Only notified entries can be confirmed
+    
+    const flight = flights.find(f => f.id === flightId);
+    if (!flight) return null;
+    
+    // Check if notification has expired
+    const now = Date.now();
+    if (entry.notificationExpiresAt && entry.notificationExpiresAt <= now) {
+      return null; // Notification expired
+    }
+    
+    // Find an available seat
+    const availableSeats = seats[flightId] || [];
+    const freeSeat = availableSeats.find(s => s.status === SeatStatus.Available);
+    
+    if (!freeSeat) return null; // No available seats
+    
+    // Update seat to booked
+    setSeats(prev => {
+      const updatedSeats = [...(prev[flightId] || [])];
+      const seatIndex = updatedSeats.findIndex(s => s.id === freeSeat.id);
+      if (seatIndex !== -1) {
+        updatedSeats[seatIndex] = {
+          ...updatedSeats[seatIndex],
+          status: SeatStatus.Booked,
+          reservedBy: entry.passenger.id
+        };
+      }
+      return { ...prev, [flightId]: updatedSeats };
+    });
+
+    // Update flight counts
+    setFlights(prev => prev.map(f => {
+      if (f.id === flightId) {
+        const newAvailable = Math.max(0, f.availableSeats - 1);
+        const newBooked = f.bookedSeats + 1;
+        return {
+          ...f,
+          availableSeats: newAvailable,
+          bookedSeats: newBooked,
+          status: newAvailable > 10 ? FlightStatus.SeatsAvailable :
+                  newAvailable > 0 ? FlightStatus.LimitedSeats :
+                  FlightStatus.FullyBooked
+        };
+      }
+      return f;
+    }));
+
+    // Create booking for the waiting list passenger
+    const booking: Booking = {
+      id: `BKG-WL-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      bookingReference: `WL-${flight.flightNumber.replace(' ', '')}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+      flightId: flightId,
+      flight,
+      passengerId: entry.passenger.id,
+      passenger: entry.passenger,
+      seatId: freeSeat.id,
+      seat: freeSeat,
+      ticketClass: entry.ticketClass,
+      price: flight.price[entry.ticketClass === TicketClass.First ? 'firstClass' : 
+                         entry.ticketClass === TicketClass.Business ? 'business' : 'economy'],
+      bookedAt: Date.now(),
+      status: BookingStatus.Confirmed
+    };
+
+    setBookings(prev => [...prev, booking]);
+
+    // Remove from waiting list
+    setWaitingLists(prev => {
+      const remaining = (prev[flightId] || []).filter(e => e.id !== entryId);
+      const reindexed = remaining.map((e, index) => ({
+        ...e,
+        position: index + 1
+      }));
+      return { ...prev, [flightId]: reindexed };
+    });
+
+    addSystemLog(
+      'Waiting list booking confirmed',
+      `${entry.passenger.name} confirmed booking for seat ${freeSeat.seatNumber} from waiting list`,
+      flightId,
+      entry.passenger.id
+    );
+
+    // Offer next seat to the next person in waiting list
+    processWaitingList(flightId, 1);
+
+    return booking;
+  }, [waitingLists, flights, seats, addSystemLog, processWaitingList]);
+
   const joinWaitingList = useCallback((flightId: string, passenger: Passenger, ticketClass: TicketClass): WaitingListEntry | null => {
     const flight = flights.find(f => f.id === flightId);
     if (!flight) return null;
@@ -964,6 +1143,26 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return reservations.find(r => r.id === reservationId);
   }, [reservations]);
 
+  const getPendingNotificationsForCurrentPassenger = useCallback(() => {
+    if (!currentPassenger) return [];
+    
+    const pending: Array<WaitingListEntry & { flightId: string }> = [];
+    
+    Object.entries(waitingLists).forEach(([flightId, entries]) => {
+      entries.forEach(entry => {
+        // Only return entries that are notified and for the current passenger
+        if (entry.notified && entry.passenger.id === currentPassenger.id) {
+          pending.push({
+            ...entry,
+            flightId
+          });
+        }
+      });
+    });
+    
+    return pending;
+  }, [currentPassenger, waitingLists]);
+
   const clearCurrentReservation = useCallback(() => {
     setCurrentReservation(null);
   }, []);
@@ -987,9 +1186,11 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     processPayment,
     cancelBooking,
     joinWaitingList,
+    confirmWaitingListBooking,
     getWaitingListPosition,
     getFlightById,
     getReservationById,
+    getPendingNotificationsForCurrentPassenger,
     setCurrentPassenger,
     clearCurrentReservation,
     theme,

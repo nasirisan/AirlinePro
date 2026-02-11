@@ -17,6 +17,7 @@ import { motion } from 'motion/react';
 export const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { flights, reservations, bookings, waitingLists, systemLogs, theme } = useBooking();
+  const [refreshTrigger, setRefreshTrigger] = React.useState(0);
 
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('adminLoggedIn');
@@ -24,6 +25,11 @@ export const AdminDashboard: React.FC = () => {
       navigate('/admin/login');
     }
   }, [navigate]);
+
+  // Refresh dashboard whenever bookings or reservations change to show latest flight data
+  useEffect(() => {
+    setRefreshTrigger(prev => prev + 1);
+  }, [bookings.length, reservations.length]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminLoggedIn');

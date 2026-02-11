@@ -7,7 +7,9 @@ export default defineConfig({
   plugins: [
     // The React and Tailwind plugins are both required for Make, even if
     // Tailwind is not being actively used – do not remove them
-    react(),
+    react({
+      jsxImportSource: 'react',
+    }),
     tailwindcss(),
   ],
   resolve: {
@@ -19,4 +21,11 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  server: {
+    headers: {
+      // Allow inline scripts for development
+      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src * data:; font-src 'self' data:;"
+    }
+  }
 })

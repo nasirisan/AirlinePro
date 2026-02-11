@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
 import { Flight, PassengerType } from '../types';
 import { StatusBadge } from './StatusBadge';
+import { NotificationBell } from './NotificationBell';
 import { Plane, Calendar, Search, Users, DollarSign, Moon, Sun, Shield, Bell, Clock, ArrowRight, MapPin, Phone, Mail, Facebook, Twitter, Linkedin, Home } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -35,6 +36,14 @@ export const FlightSearch: React.FC = () => {
       setDate(dates[0]);
     }
   }, [from, to, getAvailableDates, date]);
+
+  // Re-run search when flights change in context to keep available seats updated
+  React.useEffect(() => {
+    if (hasSearched && from && to && date) {
+      const results = searchFlights(from, to, date);
+      setSearchResults(results);
+    }
+  }, [searchFlights, hasSearched, from, to, date]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,6 +184,7 @@ export const FlightSearch: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            <NotificationBell />
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-lg border ${theme === 'dark' ? 'bg-gray-700 border-gray-600 hover:bg-gray-600' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'} transition-colors`}
