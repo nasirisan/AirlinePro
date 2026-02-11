@@ -471,7 +471,10 @@ export const FlightSearch: React.FC = () => {
               >
                 Search Flights
               </button>
-              <button className="px-8 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-blue-600 transition-colors">
+              <button 
+                onClick={() => navigate('/flight-status')}
+                className="px-8 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-blue-600 transition-colors"
+              >
                 Track Booking
               </button>
             </div>
