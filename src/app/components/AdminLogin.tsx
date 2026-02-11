@@ -19,7 +19,7 @@ export const AdminLogin: React.FC = () => {
       localStorage.setItem('adminRole', username === 'superadmin' ? 'Super Admin' : 'Operations Admin');
       navigate('/admin/dashboard');
     } else {
-      setError('Invalid credentials. Try admin/admin123 or superadmin/super123');
+      setError('Invalid username or password. Please try again.');
     }
   };
 
@@ -48,7 +48,7 @@ export const AdminLogin: React.FC = () => {
               Admin Portal
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              NAS Airlines Operations
+              Seven Airlines Operations
             </p>
           </div>
 
@@ -102,16 +102,7 @@ export const AdminLogin: React.FC = () => {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Demo Credentials:
-            </p>
-            <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-              <p>Operations Admin: admin / admin123</p>
-              <p>Super Admin: superadmin / super123</p>
-            </div>
-          </div>
+
         </motion.div>
       </div>
     </div>

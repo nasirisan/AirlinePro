@@ -1,11 +1,27 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
-import { ArrowLeft, Activity, Filter } from 'lucide-react';
+import { ArrowLeft, Activity, Filter, RotateCcw } from 'lucide-react';
 
 export const SystemLogs: React.FC = () => {
   const navigate = useNavigate();
   const { systemLogs, theme } = useBooking();
+
+  const handleResetData = () => {
+    if (window.confirm('Are you sure you want to reset all demo data? This will clear all bookings, reservations, and waiting lists.')) {
+      // Clear all app data from localStorage
+      localStorage.removeItem('nas-bookings');
+      localStorage.removeItem('nas-reservations');
+      localStorage.removeItem('nas-waiting-lists');
+      localStorage.removeItem('nas-system-logs');
+      localStorage.removeItem('nas-flights');
+      localStorage.removeItem('nas-seats');
+      // Clear currentPassenger from sessionStorage (tab-specific)
+      sessionStorage.removeItem('nas-current-passenger');
+      // Reload the page to reinitialize with fresh data
+      window.location.reload();
+    }
+  };
 
   const getActionColor = (action: string) => {
     if (action.includes('confirmed') || action.includes('notified')) {
@@ -189,6 +205,16 @@ export const SystemLogs: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Reset Button - Bottom Right Corner */}
+      <button
+        onClick={handleResetData}
+        className="fixed bottom-8 right-8 flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors shadow-lg"
+        title="Reset all demo data"
+      >
+        <RotateCcw className="w-4 h-4" />
+        Reset
+      </button>
     </div>
   );
 };

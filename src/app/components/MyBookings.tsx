@@ -55,11 +55,27 @@ export const MyBookings: React.FC = () => {
               </h1>
             </div>
             <p className={`text-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
-              View and manage all your flight bookings
+              {currentPassenger ? `Showing bookings for ${currentPassenger.name}` : 'View and manage all your flight bookings'}
             </p>
           </div>
 
-          {bookings.length === 0 ? (
+          {!currentPassenger ? (
+            <div className={`rounded-xl border-2 border-dashed py-16 text-center ${theme === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-gray-300 bg-white'}`}>
+              <Plane className={`w-16 h-16 mx-auto mb-4 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
+              <h3 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                No passenger logged in
+              </h3>
+              <p className={`mb-6 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                Book a flight first to see your bookings
+              </p>
+              <button
+                onClick={() => navigate('/')}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Search Flights
+              </button>
+            </div>
+          ) : myBookings.length === 0 ? (
             <div className={`rounded-xl border-2 border-dashed py-16 text-center ${theme === 'dark' ? 'border-gray-700 bg-gray-800' : 'border-gray-300 bg-white'}`}>
               <Plane className={`w-16 h-16 mx-auto mb-4 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}`} />
               <h3 className={`text-xl font-bold mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
@@ -77,7 +93,7 @@ export const MyBookings: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {bookings.map((booking) => (
+              {myBookings.map((booking) => (
                 <motion.div
                   key={booking.id}
                   initial={{ opacity: 0, y: 20 }}

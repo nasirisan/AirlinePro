@@ -6,7 +6,7 @@ import {
   Users, 
   Clock, 
   CheckCircle, 
-  AlertCircle, 
+  AlertCircle,
   LogOut,
   BarChart3,
   Activity,
@@ -35,22 +35,6 @@ export const AdminDashboard: React.FC = () => {
     localStorage.removeItem('adminLoggedIn');
     localStorage.removeItem('adminRole');
     navigate('/');
-  };
-
-  const handleResetData = () => {
-    if (window.confirm('Are you sure you want to reset all demo data? This will clear all bookings, reservations, and waiting lists.')) {
-      // Clear all app data from localStorage
-      localStorage.removeItem('nas-bookings');
-      localStorage.removeItem('nas-reservations');
-      localStorage.removeItem('nas-waiting-lists');
-      localStorage.removeItem('nas-system-logs');
-      localStorage.removeItem('nas-flights');
-      localStorage.removeItem('nas-seats');
-      // Clear currentPassenger from sessionStorage (tab-specific)
-      sessionStorage.removeItem('nas-current-passenger');
-      // Reload the page to reinitialize with fresh data
-      window.location.reload();
-    }
   };
 
   const adminRole = localStorage.getItem('adminRole') || 'Admin';
@@ -111,22 +95,13 @@ export const AdminDashboard: React.FC = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400">{adminRole}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleResetData}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-              >
-                <AlertCircle className="w-4 h-4" />
-                Reset Demo Data
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </button>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
           </div>
         </div>
       </div>
