@@ -98,6 +98,7 @@ interface BookingContextType {
   setCurrentPassenger: (passenger: Passenger | null) => void;         // Log in or log out a passenger
   clearCurrentReservation: () => void;                                 // Clear active reservation
   toggleTheme: () => void;                                            // Switch between light/dark mode
+  resetDemoData: () => void;                                          // Reset demo data to initial state
 }
 
 /**
@@ -1918,6 +1919,30 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   }, []);
 
+  const resetDemoData = useCallback(() => {
+    const initialSeats: Record<string, Seat[]> = {};
+    initialFlights.forEach(flight => {
+      initialSeats[flight.id] = generateSeats(flight.id, flight.totalSeats, flight.bookedSeats);
+    });
+
+    localStorage.removeItem('nas-bookings');
+    localStorage.removeItem('nas-reservations');
+    localStorage.removeItem('nas-waiting-lists');
+    localStorage.removeItem('nas-system-logs');
+    localStorage.removeItem('nas-flights');
+    localStorage.removeItem('nas-seats');
+    sessionStorage.removeItem('nas-current-passenger');
+
+    setFlights(initialFlights);
+    setSeats(initialSeats);
+    setReservations([]);
+    setBookings([]);
+    setWaitingLists({});
+    setSystemLogs([]);
+    setCurrentPassenger(null);
+    setCurrentReservation(null);
+  }, []);
+
   const value: BookingContextType = {
     flights,
     seats,
@@ -1941,7 +1966,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setCurrentPassenger,
     clearCurrentReservation,
     theme,
-    toggleTheme
+    toggleTheme,
+    resetDemoData
   };
 
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;
