@@ -813,16 +813,60 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [currentReservation, setCurrentReservation] = useState<Reservation | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
-  // Initialize seats for all flights (only if not already loaded from storage)
+  // Initialize seats for all flights and reconcile stored data if counts drift.
   useEffect(() => {
     const hasSeats = Object.keys(seats).length > 0;
+    const baseFlights = flights.length > 0 ? flights : initialFlights;
+
+    const buildSeatsFromFlight = (flight: Flight): Seat[] => {
+      const generated = generateSeats(flight.id, flight.totalSeats, flight.bookedSeats);
+      if (flight.reservedSeats <= 0) return generated;
+
+      let remaining = flight.reservedSeats;
+      for (let i = flight.bookedSeats; i < generated.length && remaining > 0; i += 1) {
+        generated[i] = {
+          ...generated[i],
+          status: SeatStatus.Reserved
+        };
+        remaining -= 1;
+      }
+      return generated;
+    };
+
     if (!hasSeats) {
       const initialSeats: Record<string, Seat[]> = {};
-      initialFlights.forEach(flight => {
-        initialSeats[flight.id] = generateSeats(flight.id, flight.totalSeats, flight.bookedSeats);
+      baseFlights.forEach(flight => {
+        initialSeats[flight.id] = buildSeatsFromFlight(flight);
       });
       setSeats(initialSeats);
       saveToStorage('nas-seats', initialSeats);
+      return;
+    }
+
+    const reconciled: Record<string, Seat[]> = { ...seats };
+    let needsUpdate = false;
+
+    baseFlights.forEach(flight => {
+      const flightSeats = reconciled[flight.id];
+      if (!flightSeats || flightSeats.length !== flight.totalSeats) {
+        reconciled[flight.id] = buildSeatsFromFlight(flight);
+        needsUpdate = true;
+        return;
+      }
+
+      const availableCount = flightSeats.filter(s => s.status === SeatStatus.Available).length;
+      const reservedCount = flightSeats.filter(s => s.status === SeatStatus.Reserved).length;
+      const bookedCount = flightSeats.filter(s => s.status === SeatStatus.Booked).length;
+
+      if (availableCount !== flight.availableSeats || reservedCount !== flight.reservedSeats || bookedCount !== flight.bookedSeats) {
+        reconciled[flight.id] = buildSeatsFromFlight(flight);
+        needsUpdate = true;
+      }
+    });
+
+    if (needsUpdate) {
+      setSeats(reconciled);
+      saveToStorage('nas-seats', reconciled);
     }
   }, []);
 
