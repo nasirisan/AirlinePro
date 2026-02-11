@@ -136,7 +136,7 @@ export const Help: React.FC = () => {
                 <Phone className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
                 <div>
                   <h3 className={`font-bold mb-1 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Call Us</h3>
-                  <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>1-800-SEVEN-AIR</p>
+                  <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>+233 598 364 638</p>
                   <p className={`text-sm ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>Available 24/7</p>
                 </div>
               </div>

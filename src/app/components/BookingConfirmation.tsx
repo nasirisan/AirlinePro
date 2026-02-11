@@ -142,7 +142,7 @@ export const BookingConfirmation: React.FC = () => {
     </div>
 
     <div class="footer">
-      Seven Airlines &bull; support@sevenairlines.com &bull; 1-800-SEVEN-AIR<br/>
+      Seven Airlines &bull; support@sevenairlines.com &bull; +233 598 364 638<br/>
       This is an electronically generated receipt and does not require a signature.
     </div>
   </div>

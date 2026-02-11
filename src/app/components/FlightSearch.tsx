@@ -623,7 +623,7 @@ export const FlightSearch: React.FC = () => {
               <span>support@sevenairlines.com</span>
               <span className="mx-2">•</span>
               <Phone className="w-4 h-4" />
-              <span>1-800-SEVEN-AIR</span>
+              <span>+233 598 364 638</span>
             </div>
           </div>
         </footer>
