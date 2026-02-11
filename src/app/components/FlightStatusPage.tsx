@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useBooking } from '../context/BookingContext';
-import { Home, Search, AlertCircle } from 'lucide-react';
+import { Home, Search, AlertCircle, Plane, MapPin, Calendar, Clock, Armchair, DollarSign, CheckCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export const FlightStatus: React.FC = () => {
@@ -13,9 +13,19 @@ export const FlightStatus: React.FC = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  useEffect(() => {
+    console.log('FlightStatus page loaded. Bookings:', bookings);
+  }, [bookings]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const booking = bookings.find(b => b.id.toUpperCase().includes(searchRef.toUpperCase()));
+    console.log('Search initiated:', { searchRef, totalBookings: bookings.length, bookings });
+    // Search by booking reference (case-insensitive)
+    const booking = bookings.find(b => {
+      console.log(`Comparing ${b.bookingReference?.toUpperCase()} === ${searchRef.toUpperCase()}`);
+      return b.bookingReference?.toUpperCase() === searchRef.toUpperCase();
+    });
+    console.log('Search result:', booking);
     setFoundBooking(booking || null);
   };
 
@@ -55,7 +65,7 @@ export const FlightStatus: React.FC = () => {
                   type="text"
                   value={searchRef}
                   onChange={(e) => setSearchRef(e.target.value)}
-                  placeholder="Enter booking reference (e.g., BK123456)"
+                  placeholder="Enter your booking reference"
                   className={`flex-1 px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300'}`}
                 />
                 <button
@@ -81,55 +91,128 @@ export const FlightStatus: React.FC = () => {
           )}
 
           {foundBooking && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={`rounded-xl border p-8 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div>
-                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Booking Reference</p>
-                  <p className="text-2xl font-bold text-blue-600 mb-4">{foundBooking.id.slice(0, 8).toUpperCase()}</p>
-
-                  <p className={`text-sm mt-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Passenger Name</p>
-                  <p className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{foundBooking.passenger.name}</p>
-
-                  <p className={`text-sm mt-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Booking Status</p>
-                  <span className="inline-block mt-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-bold">
-                    Confirmed
-                  </span>
-                </div>
-
-                <div>
-                  <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Seat Assignment</p>
-                  <p className="text-3xl font-bold text-blue-600 mb-4">{foundBooking.seat.seatNumber}</p>
-
-                  <p className={`text-sm mt-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Seat Class</p>
-                  <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{foundBooking.seat.class}</p>
-
-                  <p className={`text-sm mt-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Total Price Paid</p>
-                  <p className="text-2xl font-bold text-green-600">${foundBooking.totalPrice}</p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`rounded-2xl border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} overflow-hidden`}
+            >
+              {/* Header with Status */}
+              <div className={`${theme === 'dark' ? 'bg-gray-700' : 'bg-blue-50'} border-b ${theme === 'dark' ? 'border-gray-600' : 'border-blue-200'} p-6`}>
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <p className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Booking Reference</p>
+                    <p className="text-3xl font-bold text-blue-600">{foundBooking.bookingReference}</p>
+                  </div>
+                  <div className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-bold">
+                    <CheckCircle className="w-5 h-5" />
+                    CONFIRMED
+                  </div>
                 </div>
               </div>
 
-              <div className={`border-t ${theme === 'dark' ? 'border-gray-700 pt-6' : 'border-gray-200 pt-6'}`}>
-                <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Status Timeline</h3>
-                <div className="space-y-4">
-                  <div className="flex gap-4">
-                    <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                    <div>
-                      <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Booking Confirmed</p>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Your ticket has been issued</p>
+              {/* Main Content */}
+              <div className="p-8">
+                {/* Passenger Info */}
+                <div className="mb-8">
+                  <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Passenger Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Name</p>
+                      <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{foundBooking.passenger.name}</p>
+                    </div>
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Passenger Type</p>
+                      <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{foundBooking.passenger.type}</p>
                     </div>
                   </div>
-                  <div className="flex gap-4">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                    <div>
-                      <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Check-in Available</p>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>You can check in 24 hours before your flight</p>
+                </div>
+
+                {/* Flight Details */}
+                <div className="mb-8">
+                  <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Flight Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Flight Number</p>
+                      <p className={`text-lg font-bold text-blue-600`}>{foundBooking.flight.flightNumber}</p>
+                    </div>
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Date</p>
+                      <p className={`text-lg font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{foundBooking.flight.date}</p>
+                    </div>
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5 text-gray-500" />
+                        <div>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Route</p>
+                          <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{foundBooking.flight.from} → {foundBooking.flight.to}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-gray-500" />
+                        <div>
+                          <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Departure</p>
+                          <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{foundBooking.flight.departureTime}</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-4">
-                    <div className="w-3 h-3 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                    <div>
-                      <p className={`font-bold ${theme === 'dark' ? 'text-gray-400' : 'text-gray-700'}`}>Boarding</p>
-                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>Pending</p>
+                </div>
+
+                {/* Seat & Pricing */}
+                <div className="mb-8">
+                  <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Booking Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'} border-2 border-blue-500`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Armchair className="w-5 h-5 text-blue-600" />
+                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Seat Assignment</p>
+                      </div>
+                      <p className="text-3xl font-bold text-blue-600">{foundBooking.seat.seatNumber}</p>
+                      <p className={`text-sm mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{foundBooking.seat.class}</p>
+                    </div>
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <Plane className="w-5 h-5 text-purple-600" />
+                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Ticket Class</p>
+                      </div>
+                      <p className={`text-xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>{foundBooking.ticketClass}</p>
+                    </div>
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'} border-2 border-green-500`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <DollarSign className="w-5 h-5 text-green-600" />
+                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Price Paid</p>
+                      </div>
+                      <p className="text-2xl font-bold text-green-600">${foundBooking.price}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Timeline */}
+                <div>
+                  <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Status Timeline</h3>
+                  <div className="space-y-4">
+                    <div className="flex gap-4">
+                      <div className="w-3 h-3 bg-green-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Booking Confirmed</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Your ticket has been issued</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>Check-in Available</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>You can check in 24 hours before your flight</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="w-3 h-3 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                      <div>
+                        <p className={`font-bold ${theme === 'dark' ? 'text-gray-400' : 'text-gray-700'}`}>Boarding</p>
+                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-500' : 'text-gray-500'}`}>Pending</p>
+                      </div>
                     </div>
                   </div>
                 </div>
