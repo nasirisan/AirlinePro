@@ -14,7 +14,6 @@ export const FlightSearch: React.FC = () => {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [date, setDate] = useState('2026-02-15');
-  const [passengers, setPassengers] = useState(1);
   const [searchResults, setSearchResults] = useState<Flight[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
@@ -244,7 +243,7 @@ export const FlightSearch: React.FC = () => {
           className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl p-8 mb-12 border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}
         >
           <form onSubmit={handleSearch}>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
               <div>
                 <label className={`block text-sm font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
                   From
@@ -315,19 +314,7 @@ export const FlightSearch: React.FC = () => {
                 )}
               </div>
 
-              <div>
-                <label className={`block text-sm font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                  Passengers
-                </label>
-                <select 
-                  value={passengers}
-                  onChange={(e) => setPassengers(parseInt(e.target.value))}
-                  className={`w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                >
-                  {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n} {n === 1 ? 'Passenger' : 'Passengers'}</option>)}
-                </select>
-              </div>
-              
+
               <div className="flex items-end">
                 <button
                   type="submit"
