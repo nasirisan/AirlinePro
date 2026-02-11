@@ -7,8 +7,13 @@ import { motion } from 'motion/react';
 export const MyBookings: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { bookings, cancelBooking, theme } = useBooking();
+  const { bookings, cancelBooking, currentPassenger, theme } = useBooking();
   const isActive = (path: string) => location.pathname === path;
+
+  // Filter bookings to only show current passenger's bookings
+  const myBookings = currentPassenger 
+    ? bookings.filter(b => b.passenger.id === currentPassenger.id)
+    : [];
 
   const handleCancel = (bookingId: string) => {
     const confirmed = window.confirm('Cancel this booking? This will release your seat.');
