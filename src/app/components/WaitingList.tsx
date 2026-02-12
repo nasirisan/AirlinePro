@@ -284,44 +284,6 @@ export const WaitingList: React.FC = () => {
             </div>
 
             {/* ═══════════════════════════════════════════════════════════════
-                 CURRENT WAITING LIST STATUS - Shows how many people waiting
-                ═══════════════════════════════════════════════════════════════ */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <div className="flex items-start gap-3">
-                {/* Users icon on the left */}
-                <Users className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-blue-900 dark:text-blue-300 mb-2">
-                    Current Waiting List
-                  </p>
-                  {/* 2-column grid showing priority queue vs normal queue */}
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    {/* Column 1: Priority Queue (VIP, Frequent Flyers, Business/First Class) */}
-                    <div>
-                      <p className="text-blue-700 dark:text-blue-400">Priority Queue</p>
-                      <p className="font-bold text-blue-900 dark:text-blue-300">
-                        {priorityQueueMembers.length} people
-                      </p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                        Business/First Class, VIP, Frequent Flyers
-                      </p>
-                    </div>
-                    {/* Column 2: Normal Queue (Economy passengers) */}
-                    <div>
-                      <p className="text-blue-700 dark:text-blue-400">Normal Queue</p>
-                      <p className="font-bold text-blue-900 dark:text-blue-300">
-                        {normalQueueMembers.length} people
-                      </p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                        Economy Class
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* ═══════════════════════════════════════════════════════════════
                  PRIORITY INFO - Explains how the queue priority works
                 ═══════════════════════════════════════════════════════════════ */}
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
