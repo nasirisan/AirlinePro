@@ -57,7 +57,7 @@ export const AdminDashboard: React.FC = () => {
     },
     {
       label: 'Confirmed Bookings',
-      value: bookings.length,
+      value: bookedSeats,
       icon: CheckCircle,
       color: 'bg-green-500',
       textColor: 'text-green-600 dark:text-green-400'

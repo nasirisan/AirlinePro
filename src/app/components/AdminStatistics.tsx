@@ -67,7 +67,7 @@ export const AdminStatistics: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Confirmed Bookings</p>
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400">{bookings.length}</p>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400">{bookedSeats}</p>
               </div>
               <div className="bg-green-500 p-3 rounded-lg">
                 <CheckCircle className="w-6 h-6 text-white" />

@@ -110,16 +110,16 @@ export const SeatSelection: React.FC = () => {
                         <span>First Class (Available)</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 line-through"></div>
-                        <span className="line-through text-red-600 dark:text-red-400">Reserved</span>
+                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700"></div>
+                        <span className="text-red-600 dark:text-red-400">Reserved</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 line-through"></div>
-                        <span className="line-through text-red-600 dark:text-red-400">Booked</span>
+                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700"></div>
+                        <span className="text-red-600 dark:text-red-400">Booked</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700 line-through"></div>
-                        <span className="line-through text-red-600 dark:text-red-400">Unavailable</span>
+                        <div className="w-6 h-6 rounded border-2 bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700"></div>
+                        <span className="text-red-600 dark:text-red-400">Unavailable</span>
                       </div>
                     </div>
                   </div>
